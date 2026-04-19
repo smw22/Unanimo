@@ -6,7 +6,7 @@ import { useTheme } from "../src/context/ThemeContext";
 export default function App() {
   const theme = useTheme();
 
-  const [instruments, setInstruments] = useState([]);
+  const [instruments, setInstruments] = useState<any[]>([]);
 
   useEffect(() => {
     getInstruments();
@@ -32,19 +32,19 @@ export default function App() {
   );
 }
 
-function createStyles(theme: { background: string; text: string }) {
+function createStyles(theme: { colors: { background: string; text: string } }) {
   return StyleSheet.create({
     container: {
       flex: 1,
       paddingTop: 50,
       paddingHorizontal: 16,
-      backgroundColor: theme.background,
+      backgroundColor: theme.colors.background,
     },
     item: {
       padding: 16,
       borderBottomWidth: 1,
       borderBottomColor: "#ccc",
-      color: theme.text,
+      color: theme.colors.text,
     },
   });
 }

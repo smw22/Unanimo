@@ -1,11 +1,21 @@
 const lightTheme = {
-  background: "#FDFDFD",
-  text: "#000",
+  colors: {
+    background: "#fff",
+    text: "#000",
+    primary: "#007AFF",
+    surface: "#fff",
+    border: "#e0e0e0",
+  },
 };
 
 const darkTheme = {
-  background: "#0D0D0D",
-  text: "#fff",
+  colors: {
+    background: "#000",
+    text: "#fff",
+    primary: "#0A84FF",
+    surface: "#111",
+    border: "#222",
+  },
 };
 
 export { darkTheme, lightTheme };
