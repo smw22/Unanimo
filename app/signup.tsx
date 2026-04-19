@@ -49,7 +49,7 @@ export default function Signup() {
         "Account created",
         "If email confirmation is enabled, confirm your email before signing in.",
       );
-      router.replace("/signin");
+      router.replace("/login");
     } catch (error: any) {
       Alert.alert("Create profile failed", error?.message ?? "Unknown error");
     } finally {

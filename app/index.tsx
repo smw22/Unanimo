@@ -24,7 +24,7 @@ export default function Index() {
             href="/signup"
             variant="primary"
           />
-          <NavigationButton label="Login" href="/signin" variant="secondary" />
+          <NavigationButton label="Login" href="/login" variant="secondary" />
         </View>
       </View>
     </View>
