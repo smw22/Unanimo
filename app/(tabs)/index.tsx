@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { useEffect, useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
-import { useTheme } from "./src/context/ThemeContext";
+import { useTheme } from "../src/context/ThemeContext";
 
 export default function App() {
   const theme = useTheme();
