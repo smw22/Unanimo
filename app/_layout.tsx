@@ -1,9 +1,7 @@
-// import { DarkTheme, DefaultTheme } from "@react-navigation/native";
-import ThemeProvider from "./src/context/ThemeProvider";
-
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
+import "../global.css";
 
 import { SplashScreenController } from "@/components/SplashScreenController";
 
@@ -39,12 +37,10 @@ function RootNavigator() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <SplashScreenController />
-        <RootNavigator />
-        <StatusBar style="auto" />
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <SplashScreenController />
+      <RootNavigator />
+      <StatusBar style="auto" />
+    </AuthProvider>
   );
 }

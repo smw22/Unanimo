@@ -1,22 +1,5 @@
-import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
-import { useTheme } from "../src/context/ThemeContext";
+import { View } from "react-native";
 
 export default function History() {
-  const theme = useTheme();
-
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
-  return <View style={styles.container}></View>;
-}
-
-function createStyles(theme: { colors: { background: string } }) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      paddingTop: 50,
-      paddingHorizontal: 16,
-      backgroundColor: theme.colors.background,
-    },
-  });
+  return <View className="flex-1 pt-12 px-4 bg-white dark:bg-black" />;
 }
