@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 export default function TabLayout() {
   return (
@@ -28,25 +28,14 @@ export default function TabLayout() {
         name="index"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -20,
-                    width: "64px",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#7B2FFF",
-                  }}
-                />
-              )}
+            <View style={styles.tabIconContainer}>
+              {focused && <View style={styles.tabIndicator} />}
               <Ionicons
                 name={focused ? "home-sharp" : "home-outline"}
                 color={color}
                 size={24}
               />
-              <Text style={{ color, fontSize: 12 }}>Home</Text>
+              <Text style={[styles.tabLabel, { color }]}>Home</Text>
             </View>
           ),
         }}
@@ -55,25 +44,14 @@ export default function TabLayout() {
         name="history"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -20,
-                    width: "64px",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#7B2FFF",
-                  }}
-                />
-              )}
+            <View style={styles.tabIconContainer}>
+              {focused && <View style={styles.tabIndicator} />}
               <Ionicons
                 name={focused ? "time-sharp" : "time-outline"}
                 color={color}
                 size={24}
               />
-              <Text style={{ color, fontSize: 12 }}>History</Text>
+              <Text style={[styles.tabLabel, { color }]}>History</Text>
             </View>
           ),
         }}
@@ -82,25 +60,14 @@ export default function TabLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -20,
-                    width: "64px",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#7B2FFF",
-                  }}
-                />
-              )}
+            <View style={styles.tabIconContainer}>
+              {focused && <View style={styles.tabIndicator} />}
               <Ionicons
                 name={focused ? "person-sharp" : "person-outline"}
                 color={color}
                 size={24}
               />
-              <Text style={{ color, fontSize: 12 }}>Profile</Text>
+              <Text style={[styles.tabLabel, { color }]}>Profile</Text>
             </View>
           ),
         }}
@@ -108,3 +75,25 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabIconContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tabIndicator: {
+    position: "absolute",
+    top: -20,
+    width: 64,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#7B2FFF",
+  },
+  tabIcon: {
+    fontSize: 24,
+  },
+  tabLabel: {
+    color: "#888",
+    fontSize: 12,
+  },
+});
