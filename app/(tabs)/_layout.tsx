@@ -2,6 +2,16 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { Text, View } from "react-native";
 
+const TabIcon = ({ color, focused, iconName, label }: any) => (
+  <View className="items-center justify-center">
+    {focused && (
+      <View className="absolute -top-5 w-16 h-1 rounded bg-purple-600" />
+    )}
+    <Ionicons name={iconName} color={color} size={24} />
+    <Text style={{ color, fontSize: 12 }}>{label}</Text>
+  </View>
+);
+
 export default function TabLayout() {
   return (
     <Tabs
@@ -19,7 +29,7 @@ export default function TabLayout() {
           paddingTop: 20,
           paddingBottom: 20,
           height: "auto",
-          border: "none",
+          borderTopWidth: 0,
         },
         tabBarShowLabel: false,
       }}
@@ -28,26 +38,12 @@ export default function TabLayout() {
         name="index"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -20,
-                    width: "64px",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#7B2FFF",
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "home-sharp" : "home-outline"}
-                color={color}
-                size={24}
-              />
-              <Text style={{ color, fontSize: 12 }}>Home</Text>
-            </View>
+            <TabIcon
+              color={color}
+              focused={focused}
+              iconName={focused ? "home-sharp" : "home-outline"}
+              label="Home"
+            />
           ),
         }}
       />
@@ -55,26 +51,12 @@ export default function TabLayout() {
         name="history"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -20,
-                    width: "64px",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#7B2FFF",
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "time-sharp" : "time-outline"}
-                color={color}
-                size={24}
-              />
-              <Text style={{ color, fontSize: 12 }}>History</Text>
-            </View>
+            <TabIcon
+              color={color}
+              focused={focused}
+              iconName={focused ? "time-sharp" : "time-outline"}
+              label="History"
+            />
           ),
         }}
       />
@@ -82,26 +64,12 @@ export default function TabLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ color, focused }) => (
-            <View style={{ alignItems: "center", justifyContent: "center" }}>
-              {focused && (
-                <View
-                  style={{
-                    position: "absolute",
-                    top: -20,
-                    width: "64px",
-                    height: 4,
-                    borderRadius: 2,
-                    backgroundColor: "#7B2FFF",
-                  }}
-                />
-              )}
-              <Ionicons
-                name={focused ? "person-sharp" : "person-outline"}
-                color={color}
-                size={24}
-              />
-              <Text style={{ color, fontSize: 12 }}>Profile</Text>
-            </View>
+            <TabIcon
+              color={color}
+              focused={focused}
+              iconName={focused ? "person-sharp" : "person-outline"}
+              label="Profile"
+            />
           ),
         }}
       />

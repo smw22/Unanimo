@@ -1,11 +1,8 @@
 import { supabase } from "@/lib/supabase";
-import { useEffect, useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
-import { useTheme } from "../src/context/ThemeContext";
+import { useEffect, useState } from "react";
+import { FlatList, Text, View } from "react-native";
 
 export default function App() {
-  const theme = useTheme();
-
   const [instruments, setInstruments] = useState<any[]>([]);
 
   useEffect(() => {
@@ -17,34 +14,19 @@ export default function App() {
     setInstruments(data ?? []);
   }
 
-  const styles = useMemo(() => createStyles(theme), [theme]);
-
   return (
-    <View style={styles.container}>
+    <View className="flex-1 px-4 pt-12 bg-white dark:bg-black">
       <FlatList
         data={instruments}
         keyExtractor={(item) =>
           item.id ? item.id.toString() : Math.random().toString()
         }
-        renderItem={({ item }) => <Text style={styles.item}>{item.name}</Text>}
+        renderItem={({ item }) => (
+          <Text className="p-4 border-b border-gray-200 dark:border-gray-700 text-black dark:text-white">
+            {item.name}
+          </Text>
+        )}
       />
     </View>
   );
-}
-
-function createStyles(theme: { colors: { background: string; text: string } }) {
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-      paddingTop: 50,
-      paddingHorizontal: 16,
-      backgroundColor: theme.colors.background,
-    },
-    item: {
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: "#ccc",
-      color: theme.colors.text,
-    },
-  });
 }
