@@ -14,7 +14,8 @@
   --color-warning: #ffb347;
 
   /* UI */
-  --color-background: #0d0d0d;
+  --color-light-background: #0d0d0d;
+  --color-dark-background: #ffffff;
   --color-navbar: #111111;
   --color-card: #1a1a1a;
   --color-border: #2a2a2a;
