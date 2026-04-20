@@ -20,15 +20,20 @@ const ExpoWebSecureStoreAdapter = {
   },
 };
 
-export const supabase = createClient(
-  process.env.EXPO_PUBLIC_SUPABASE_URL ?? "",
-  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "",
-  {
-    auth: {
-      storage: ExpoWebSecureStoreAdapter,
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: false,
-    },
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabasePublishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+if (!supabaseUrl || !supabasePublishableKey) {
+  throw new Error(
+    "Missing Supabase URL or Publishable Key. Please check your environment variables.",
+  );
+}
+
+export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
+  auth: {
+    storage: ExpoWebSecureStoreAdapter,
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: false,
   },
-);
+});

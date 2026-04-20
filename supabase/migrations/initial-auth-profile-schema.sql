@@ -57,5 +57,6 @@ insert into storage.buckets (id, name)
 create policy "Avatar images are publicly accessible." on storage.objects
   for select using (bucket_id = 'avatars');
 
+-- Note: This policy allows anyone to upload files to the 'avatars' bucket. In a production environment, we may want to restrict this further to avoid abuse.
 create policy "Anyone can upload an avatar." on storage.objects
   for insert with check (bucket_id = 'avatars');

@@ -29,6 +29,14 @@ export default function Signup() {
       return;
     }
 
+    if (username.trim().length < 3) {
+      Alert.alert(
+        "Invalid username",
+        "Username must be at least 3 characters.",
+      );
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const { data, error } = await supabase.auth.signUp({
@@ -51,7 +59,7 @@ export default function Signup() {
       );
       router.replace("/login");
     } catch (error: any) {
-      Alert.alert("Create profile failed", error?.message ?? "Unknown error");
+      Alert.alert("Sign up failed", error?.message ?? "Unknown error");
     } finally {
       setIsSubmitting(false);
     }
