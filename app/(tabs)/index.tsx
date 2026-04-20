@@ -1,48 +1,24 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 export default function Home() {
   return (
-    <View style={styles.container}>
-      <View style={styles.hero}>
+    <View className="flex-1 bg-light-bg dark:bg-dark-bg">
+      <View className="items-center mt-10">
         <View>
           <Image
             source={require("@/assets/images/unanimo-icon.png")}
-            style={styles.logo}
+            className="mb-4 w-30 h-30"
             resizeMode="contain"
           />
         </View>
 
-        <Text style={styles.title}>Unanimo</Text>
-        <Text style={styles.subtitle}>Stop debating. Start deciding.</Text>
+        <Text className="text-5xl font-bold text-dark-text dark:text-text-primary">
+          Unanimo
+        </Text>
+        <Text className="mt-0.5 text-gray-500 text-lg leading-6">
+          Stop debating. Start deciding.
+        </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0D0D0D",
-  },
-
-  hero: {
-    alignItems: "center",
-    marginTop: 40,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 18,
-  },
-  title: {
-    color: "#f4f4f4",
-    fontSize: 50,
-    fontWeight: "700",
-  },
-  subtitle: {
-    marginTop: 2,
-    color: "#7f7f7f",
-    fontSize: 18,
-    lineHeight: 24,
-  },
-});

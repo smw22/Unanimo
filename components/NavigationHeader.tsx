@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
-import { Pressable, View, Text, StyleSheet } from "react-native";
 import { ArrowLeft } from "lucide-react-native";
+import { Pressable, Text, View } from "react-native";
 
 type NavigationHeaderProps = {
   title?: string;
@@ -15,50 +15,22 @@ export default function NavigationHeader({ title }: NavigationHeaderProps) {
   };
 
   return (
-    <View style={styles.container}>
-      <Pressable onPress={onBack} style={styles.backPressable}>
-        <View style={styles.backButton}>
-          <ArrowLeft size={16} color="#6f2cff" />{" "}
-          <Text style={styles.backButtonText}>Back</Text>
+    <View className="relative justify-center mt-15">
+      <Pressable onPress={onBack} className="self-start py-2 pr-3">
+        <View className="flex-row items-center gap-1">
+          <ArrowLeft size={16} color="#6f2cff" />
+          <Text className="text-sm font-bold text-primary">Back</Text>
         </View>
       </Pressable>
 
-      <View pointerEvents="none" style={styles.titleLayer}>
-        {!!title && <Text style={styles.title}>{title}</Text>}
+      <View
+        pointerEvents="none"
+        className="absolute inset-0 items-center justify-center"
+      >
+        {!!title && (
+          <Text className="text-lg font-bold text-white">{title}</Text>
+        )}
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginTop: 60,
-    justifyContent: "center",
-    position: "relative",
-  },
-  backPressable: {
-    alignSelf: "flex-start",
-    paddingVertical: 8,
-    paddingRight: 12,
-  },
-  titleLayer: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  backButtonText: {
-    color: "#6f2cff",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-});

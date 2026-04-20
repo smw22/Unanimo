@@ -1,5 +1,5 @@
 import { Href, router } from "expo-router";
-import { Pressable, Text, StyleSheet } from "react-native";
+import { Pressable, Text } from "react-native";
 
 type NavigationButtonProps = {
   label: string;
@@ -15,39 +15,19 @@ export function NavigationButton({
   return (
     <Pressable
       onPress={() => router.push(href)}
-      style={[styles.button, variant === "secondary" && styles.buttonSecondary]}
+      className={`h-15.5 rounded-full justify-center items-center ${
+        variant === "primary"
+          ? "bg-primary"
+          : "border-2 border-primary bg-transparent"
+      }`}
     >
       <Text
-        style={[
-          styles.buttonText,
-          variant === "secondary" && styles.buttonSecondaryText,
-        ]}
+        className={`text-xl font-bold ${
+          variant === "primary" ? "text-purple-200" : "text-primary"
+        }`}
       >
         {label}
       </Text>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    height: 62,
-    borderRadius: 31,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#6f2cff",
-  },
-  buttonSecondary: {
-    borderWidth: 2,
-    borderColor: "#6f2cff",
-    backgroundColor: "transparent",
-  },
-  buttonText: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#f5f3ff",
-  },
-  buttonSecondaryText: {
-    color: "#6f2cff",
-  },
-});

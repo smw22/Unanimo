@@ -3,14 +3,7 @@ import { supabase } from "@/lib/supabase";
 import { Label } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -66,15 +59,17 @@ export default function Signup() {
   };
 
   return (
-    <View style={styles.container}>
+    <View className="justify-between flex-1 gap-3 px-6 bg-light-bg dark:bg-dark-bg">
       <View>
         <NavigationHeader title="Create a profile" />
 
-        <View style={styles.form}>
-          <View style={{ gap: 4 }}>
-            <Label style={styles.label}>EMAIL</Label>
+        <View className="gap-3 mt-6">
+          <View className="gap-1">
+            <Label className="text-xs font-semibold text-text-secondary">
+              EMAIL
+            </Label>
             <TextInput
-              style={styles.input}
+              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Email"
               placeholderTextColor="#8d8d8d"
               keyboardType="email-address"
@@ -84,10 +79,12 @@ export default function Signup() {
             />
           </View>
 
-          <View style={{ gap: 4 }}>
-            <Label style={styles.label}>PASSWORD</Label>
+          <View className="gap-1">
+            <Label className="text-xs font-semibold text-text-secondary">
+              PASSWORD
+            </Label>
             <TextInput
-              style={styles.input}
+              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Password"
               placeholderTextColor="#8d8d8d"
               secureTextEntry
@@ -96,10 +93,12 @@ export default function Signup() {
             />
           </View>
 
-          <View style={{ gap: 4 }}>
-            <Label style={styles.label}>USERNAME</Label>
+          <View className="gap-1">
+            <Label className="text-xs font-semibold text-text-secondary">
+              USERNAME
+            </Label>
             <TextInput
-              style={styles.input}
+              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Username"
               placeholderTextColor="#8d8d8d"
               autoCapitalize="none"
@@ -108,11 +107,12 @@ export default function Signup() {
             />
           </View>
 
-          {/* TODO - ADD THE THEME COLOR PICKER */}
-          <View style={{ gap: 4 }}>
-            <Label style={styles.label}>COLOR</Label>
+          <View className="gap-1">
+            <Label className="text-xs font-semibold text-text-secondary">
+              COLOR
+            </Label>
             <TextInput
-              style={styles.input}
+              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Color (optional)"
               placeholderTextColor="#8d8d8d"
               value={color}
@@ -120,11 +120,12 @@ export default function Signup() {
             />
           </View>
 
-          {/* TODO - ADD IMAGE UPLOADER FOR AVATAR */}
-          <View style={{ gap: 4 }}>
-            <Label style={styles.label}>AVATAR URL</Label>
+          <View className="gap-1">
+            <Label className="text-xs font-semibold text-text-secondary">
+              AVATAR URL
+            </Label>
             <TextInput
-              style={styles.input}
+              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Avatar URL (optional)"
               placeholderTextColor="#8d8d8d"
               autoCapitalize="none"
@@ -138,55 +139,14 @@ export default function Signup() {
       <Pressable
         onPress={onSignUp}
         disabled={isSubmitting}
-        style={[styles.button, isSubmitting && styles.buttonDisabled]}
+        className={`mt-2 h-14 rounded-full bg-primary justify-center items-center mb-12 ${
+          isSubmitting ? "opacity-60" : ""
+        }`}
       >
-        <Text style={styles.buttonText}>
+        <Text className="text-lg font-bold text-white">
           {isSubmitting ? "Creating..." : "Create Profile"}
         </Text>
       </Pressable>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0D0D0D",
-    justifyContent: "space-between",
-    paddingHorizontal: 24,
-    gap: 12,
-  },
-  form: {
-    marginTop: 24,
-    gap: 12,
-  },
-  label: {
-    alignSelf: "flex-start",
-  },
-  input: {
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#2b2b2b",
-    backgroundColor: "#151515",
-    paddingHorizontal: 14,
-    color: "#f4f4f4",
-  },
-  button: {
-    marginTop: 8,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#6f2cff",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 50,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: "#f5f3ff",
-    fontWeight: "700",
-    fontSize: 18,
-  },
-});
