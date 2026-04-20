@@ -16,10 +16,10 @@ function RootNavigator() {
 
   return (
     <Stack>
-      {/* TODO - add protected routes here
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack.Protected> */}
+      </Stack.Protected>
+
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="home" options={{ headerShown: false }} />
       </Stack.Protected>
@@ -35,8 +35,8 @@ function RootNavigator() {
       <Stack.Protected guard={!isLoggedIn}>
         <Stack.Screen name="signup" options={{ headerShown: false }} />
       </Stack.Protected>
-      {/* TODO - add 404 page
-      <Stack.Screen name="+not-found" /> */}
+
+      <Stack.Screen name="+not-found" />
     </Stack>
   );
 }
