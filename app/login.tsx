@@ -33,7 +33,7 @@ export default function Login() {
       if (error) throw error;
 
       Alert.alert("Login successful", "Welcome back!");
-      router.replace("/home");
+      router.replace("/(tabs)");
     } catch (error: any) {
       Alert.alert("Login failed", error?.message ?? "Unknown error");
     } finally {

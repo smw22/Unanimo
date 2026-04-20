@@ -20,10 +20,6 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      <Stack.Protected guard={isLoggedIn}>
-        <Stack.Screen name="home" options={{ headerShown: false }} />
-      </Stack.Protected>
-
       <Stack.Protected guard={!isLoggedIn}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
       </Stack.Protected>
