@@ -22,7 +22,7 @@ export default function App() {
           item.id ? item.id.toString() : Math.random().toString()
         }
         renderItem={({ item }) => (
-          <Text className="p-4 border-b border-gray-200 dark:border-gray-700 text-black dark:text-white">
+          <Text className="p-4 text-black border-b border-gray-200 dark:border-gray-700 dark:text-white">
             {item.name}
           </Text>
         )}
