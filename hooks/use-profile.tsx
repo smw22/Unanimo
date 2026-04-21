@@ -13,34 +13,34 @@ export function useProfile(userId: string | string[]) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchProfile = async () => {
     if (!userId || Array.isArray(userId)) {
       setIsLoading(false);
       return;
     }
 
-    const fetchProfile = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("id, username, avatar_url, color")
-          .eq("id", userId)
-          .single();
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url, color")
+        .eq("id", userId)
+        .single();
 
-        if (error) throw error;
-        setData(data);
-      } catch (err: any) {
-        setError(err.message);
-        setData(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      if (error) throw error;
+      setData(data);
+    } catch (err: any) {
+      setError(err.message);
+      setData(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProfile();
   }, [userId]);
 
-  return { data, isLoading, error };
+  return { data, isLoading, error, refetch: fetchProfile };
 }
