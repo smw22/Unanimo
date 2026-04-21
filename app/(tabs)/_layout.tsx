@@ -5,10 +5,10 @@ import { Text, View } from "react-native";
 const TabIcon = ({ color, focused, iconName, label }: any) => (
   <View className="items-center justify-center">
     {focused && (
-      <View className="absolute -top-5 w-16 h-1 rounded bg-purple-600" />
+      <View className="absolute w-16 h-1 bg-purple-600 rounded -top-5" />
     )}
     <Ionicons name={iconName} color={color} size={24} />
-    <Text style={{ color, fontSize: 12 }}>{label}</Text>
+    <Text style={{ color, fontSize: 12, width: "100%" }}>{label}</Text>
   </View>
 );
 
@@ -27,7 +27,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: "#111111",
           paddingTop: 20,
-          paddingBottom: 20,
+          paddingBottom: 60,
           height: "auto",
           borderTopWidth: 0,
         },

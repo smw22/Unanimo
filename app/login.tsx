@@ -35,16 +35,16 @@ export default function Login() {
   };
 
   return (
-    <View className="justify-between flex-1 gap-3 px-6 bg-light-bg dark:bg-dark-bg">
+    <View className="justify-between flex-1 gap-3 p-container-spacing bg-light-bg dark:bg-dark-bg">
       <View>
         <NavigationHeader title="Login" />
         <View className="gap-3 mt-6">
-          <View className="gap-1">
+          <View className="items-start gap-1">
             <Label className="text-xs font-semibold text-text-secondary">
               EMAIL
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-3.5 border-1.5 w-full border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Email"
               placeholderTextColor="#8d8d8d"
               keyboardType="email-address"
@@ -54,12 +54,12 @@ export default function Login() {
             />
           </View>
 
-          <View className="gap-1">
+          <View className="items-start gap-1">
             <Label className="text-xs font-semibold text-text-secondary">
               PASSWORD
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-3.5 border-1.5 border-border w-full bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Password"
               placeholderTextColor="#8d8d8d"
               secureTextEntry
@@ -73,11 +73,11 @@ export default function Login() {
       <Pressable
         onPress={onLogin}
         disabled={isSubmitting}
-        className={`mt-2 h-14 rounded-full bg-primary justify-center items-center mb-12 ${
+        className={`mt-2 h-14 rounded-full bg-primary justify-center items-center ${
           isSubmitting ? "opacity-60" : ""
         }`}
       >
-        <Text className="text-lg font-bold text-white">
+        <Text className="text-lg font-bold text-purple-100">
           {isSubmitting ? "Logging in..." : "Login"}
         </Text>
       </Pressable>

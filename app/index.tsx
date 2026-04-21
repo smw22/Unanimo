@@ -1,15 +1,39 @@
 import { NavigationButton } from "@/components/NavigationButton";
-import { Image, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Text, View } from "react-native";
 
 export default function Index() {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 0.6,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, [pulseAnim]);
+
   return (
-    <View className="flex-1 bg-light-bg dark:bg-dark-bg">
-      <View className="justify-between flex-1 px-7 pt-18 pb-9">
-        <View className="items-center mt-10">
+    <View className="flex-1 p-6 bg-light-bg dark:bg-dark-bg">
+      <View className="justify-between gap-9">
+        <View className="items-center gap-4 mt-40">
           <View>
-            <Image
+            <Animated.Image
               source={require("@/assets/images/unanimo-icon.png")}
-              className="mb-4 w-30 h-30"
+              style={{
+                width: 96,
+                height: 96,
+                opacity: pulseAnim,
+              }}
               resizeMode="contain"
             />
           </View>

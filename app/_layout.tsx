@@ -30,7 +30,11 @@ function RootNavigator() {
         <Stack.Screen name="signup" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      <Stack.Screen name="+not-found" />
+      <Stack.Screen name="roomcreation" options={{ headerShown: false }} />
+
+      <Stack.Screen name="joinroom" options={{ headerShown: false }} />
+
+      <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>
   );
 }

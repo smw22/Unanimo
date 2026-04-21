@@ -1,17 +1,39 @@
 import { NavigationButton } from "@/components/NavigationButton";
-import { Image, Text, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Animated, Text, View } from "react-native";
 
 export default function Home() {
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 0.6,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, [pulseAnim]);
+
   return (
-    <View className="flex-col flex-1 px-20 gap-9 bg-light-bg dark:bg-dark-bg">
-      <View className="items-center mt-10">
-        <View>
-          <Image
-            source={require("@/assets/images/unanimo-icon.png")}
-            className="w-24 h-24 mb-4"
-            resizeMode="contain"
-          />
-        </View>
+    <View className="justify-between flex-1 p-6 gap-9 bg-light-bg dark:bg-dark-bg">
+      <View className="items-center gap-4 mt-40">
+        <Animated.Image
+          source={require("@/assets/images/unanimo-icon.png")}
+          style={{
+            width: 96,
+            height: 96,
+            opacity: pulseAnim,
+          }}
+          resizeMode="contain"
+        />
 
         <Text className="text-5xl font-bold text-dark-text dark:text-text-primary">
           Unanimo
@@ -21,12 +43,12 @@ export default function Home() {
         </Text>
       </View>
 
-      <View className="flex flex-col gap-4">
-        <NavigationButton label="Create Room" href="/onboarding" />
+      <View className="gap-4 mb-12">
+        <NavigationButton label="Create Room" href="/roomcreation" />
         <NavigationButton
           label="Join with Code"
           variant="secondary"
-          href="/onboarding"
+          href="/joinroom"
         />
       </View>
     </View>

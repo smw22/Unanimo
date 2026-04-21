@@ -69,7 +69,7 @@ export default function Signup() {
               EMAIL
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Email"
               placeholderTextColor="#8d8d8d"
               keyboardType="email-address"
@@ -84,7 +84,7 @@ export default function Signup() {
               PASSWORD
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Password"
               placeholderTextColor="#8d8d8d"
               secureTextEntry
@@ -98,7 +98,7 @@ export default function Signup() {
               USERNAME
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Username"
               placeholderTextColor="#8d8d8d"
               autoCapitalize="none"
@@ -112,7 +112,7 @@ export default function Signup() {
               COLOR
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Color (optional)"
               placeholderTextColor="#8d8d8d"
               value={color}
@@ -125,7 +125,7 @@ export default function Signup() {
               AVATAR URL
             </Label>
             <TextInput
-              className="h-13 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
               placeholder="Avatar URL (optional)"
               placeholderTextColor="#8d8d8d"
               autoCapitalize="none"
