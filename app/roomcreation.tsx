@@ -30,8 +30,15 @@ export default function RoomCreation() {
         maxParticipants: qty,
       });
 
-      Alert.alert("Room created", `Your room code is: ${room.code}`);
-      router.replace("/waitingroom");
+      console.log("Room created:", room);
+
+      router.replace({
+        pathname: "/waitingroom",
+        params: {
+          roomId: room.id,
+          roomCode: room.code,
+        },
+      });
     } catch (error: any) {
       Alert.alert("Failed to create room", error?.message ?? "Unknown error");
     } finally {
