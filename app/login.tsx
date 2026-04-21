@@ -4,6 +4,7 @@ import { Label } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -35,7 +36,7 @@ export default function Login() {
   };
 
   return (
-    <View className="justify-between flex-1 gap-3 p-container-spacing bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="justify-between flex-1 gap-3 p-container-spacing bg-light-bg dark:bg-dark-bg">
       <View>
         <NavigationHeader title="Login" />
         <View className="gap-3 mt-6">
@@ -81,6 +82,6 @@ export default function Login() {
           {isSubmitting ? "Logging in..." : "Login"}
         </Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }

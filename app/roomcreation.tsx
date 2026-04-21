@@ -1,10 +1,10 @@
 import NavigationHeader from "@/components/NavigationHeader";
-import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RoomCreation() {
   return (
-    <View className="justify-between flex-1 p-container-spacing pt-top-spacing gap-9 bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="justify-between flex-1 px-container-spacing gap-9 bg-light-bg dark:bg-dark-bg">
       <NavigationHeader title="Create a room" />
-    </View>
+    </SafeAreaView>
   );
 }

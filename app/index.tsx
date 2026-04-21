@@ -1,6 +1,7 @@
 import { NavigationButton } from "@/components/NavigationButton";
 import { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -23,15 +24,15 @@ export default function Index() {
   }, [pulseAnim]);
 
   return (
-    <View className="flex-1 p-6 bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="flex-1 p-6 bg-light-bg dark:bg-dark-bg">
       <View className="justify-between gap-9">
         <View className="items-center gap-4 mt-40">
           <View>
             <Animated.Image
               source={require("@/assets/images/unanimo-icon.png")}
               style={{
-                width: 96,
-                height: 96,
+                width: 128,
+                height: 128,
                 opacity: pulseAnim,
               }}
               resizeMode="contain"
@@ -53,6 +54,6 @@ export default function Index() {
           <NavigationButton label="Login" href="/login" variant="secondary" />
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
