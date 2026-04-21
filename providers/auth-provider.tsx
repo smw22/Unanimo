@@ -14,13 +14,16 @@ export default function AuthProvider({ children }: PropsWithChildren) {
     const fetchClaims = async () => {
       setIsLoading(true);
 
-      const { data, error } = await supabase.auth.getClaims();
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.getSession();
 
       if (error) {
         console.error("Error fetching claims:", error);
       }
 
-      setClaims(data?.claims ?? null);
+      setClaims(session?.user ?? null);
       setIsLoading(false);
     };
 
@@ -30,8 +33,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, _session) => {
       console.log("Auth state changed:", { event: _event });
-      const { data } = await supabase.auth.getClaims();
-      setClaims(data?.claims ?? null);
+      setClaims(_session?.user ?? null);
     });
 
     // Cleanup subscription on unmount
@@ -49,7 +51,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         const { data } = await supabase
           .from("profiles")
           .select("*")
-          .eq("id", claims.sub)
+          .eq("id", claims.id)
           .single();
 
         setProfile(data);

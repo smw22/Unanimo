@@ -4,6 +4,7 @@ import { Label } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +26,11 @@ export default function Login() {
 
       if (error) throw error;
 
-      Alert.alert("Login successful", "Welcome back!");
+      Toast.show({
+        type: "success",
+        text1: "Logged in successfully",
+        visibilityTime: 1000,
+      });
       router.replace("/(tabs)");
     } catch (error: any) {
       Alert.alert("Login failed", error?.message ?? "Unknown error");

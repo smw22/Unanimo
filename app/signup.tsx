@@ -4,6 +4,7 @@ import { Label } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -46,10 +47,11 @@ export default function Signup() {
 
       if (error) throw error;
 
-      Alert.alert(
-        "Account created",
-        "If email confirmation is enabled, confirm your email before signing in.",
-      );
+      Toast.show({
+        type: "success",
+        text1: "Profile created successfully",
+        visibilityTime: 1000,
+      });
       router.replace("/login");
     } catch (error: any) {
       Alert.alert("Sign up failed", error?.message ?? "Unknown error");

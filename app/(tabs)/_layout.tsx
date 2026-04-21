@@ -15,7 +15,7 @@ const TabIcon = ({ color, focused, iconName, label }: any) => (
 
 export default function TabLayout() {
   const { claims } = useAuthContext();
-  const userId = claims?.sub;
+  const userId = claims?.id;
 
   return (
     <Tabs
