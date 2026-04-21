@@ -1,13 +1,23 @@
 import NavigationHeader from "@/components/NavigationHeader";
+import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 
 export default function JoinRoom() {
+  const [roomCode, setRoomCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const joinRoom = async () => {
+    if (!roomCode.trim()) {
+      Alert.alert("Missing field", "Please enter a room code.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
+      console.log("Joining room:", roomCode);
+      Alert.alert("Success", "Joined room!");
+      router.replace("/(tabs)");
     } catch (error: any) {
       Alert.alert("Failed to join room", error?.message ?? "Unknown error");
     } finally {
@@ -16,13 +26,15 @@ export default function JoinRoom() {
   };
 
   return (
-    <View className="flex-1 gap-32 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
+    <View className="flex-1 gap-40 px-6 pt-12 bg-light-bg dark:bg-dark-bg">
       <NavigationHeader title="Join with Code" />
 
-      <View className="flex gap-4 p-6 bg-card">
+      <View className="gap-4 p-6 bg-card rounded-2xl">
         <TextInput
           placeholder="Room Code"
-          className="p-4 font-bold text-center text-white border-2 rounded-lg border-primary placeholder:text-white"
+          value={roomCode}
+          onChangeText={setRoomCode}
+          className="p-4 font-bold text-center text-white border-2 rounded-lg border-primary"
         />
 
         <Pressable
