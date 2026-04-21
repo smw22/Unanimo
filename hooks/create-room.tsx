@@ -2,14 +2,14 @@ import { supabase } from "@/lib/supabase";
 import { useAuthContext } from "./use-auth-context";
 
 export function useCreateRoom() {
-  const { claims, profile } = useAuthContext();
+  const { claims } = useAuthContext();
 
   const createRoom = async (
-    roomName: string,
+    title: string,
     options?: {
-      isAnonymous: boolean;
-      isTimeLimited: boolean;
-      maxParticipants: number;
+      isAnonymous?: boolean;
+      isTimeLimited?: boolean;
+      maxParticipants?: number;
     },
   ) => {
     const userId = claims?.sub;
@@ -18,15 +18,12 @@ export function useCreateRoom() {
       throw new Error("User not authenticated");
     }
 
-    // Generate unique room code (6 characters)
-    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-
     try {
       const { data, error } = await supabase
         .from("rooms")
         .insert({
-          code: roomCode,
           host_id: userId,
+          title: title,
           status: "waiting",
         })
         .select()
@@ -34,6 +31,7 @@ export function useCreateRoom() {
 
       if (error) throw error;
 
+      // Auto-add host as participant
       const { error: participantError } = await supabase
         .from("participants")
         .insert({
@@ -54,5 +52,5 @@ export function useCreateRoom() {
     }
   };
 
-  return { createRoom, profile };
+  return { createRoom };
 }
