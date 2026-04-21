@@ -15,6 +15,9 @@ module.exports = {
         navbar: "#111111",
         card: "#1a1a1a",
         border: "#2a2a2a",
+        "input-bg": "#1A1A1A",
+        "input-border": "#2A2A2A",
+        "label-primary": "#8E8E8E",
         "text-primary": "#ffffff",
         "text-secondary": "#888888",
         "text-muted": "#555555",
@@ -22,7 +25,7 @@ module.exports = {
       },
       spacing: {
         15.5: "62px",
-        "container-spacing": "40px",
+        "container-spacing": "20px",
       },
     },
   },

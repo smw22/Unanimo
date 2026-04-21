@@ -34,6 +34,8 @@ function RootNavigator() {
 
       <Stack.Screen name="joinroom" options={{ headerShown: false }} />
 
+      <Stack.Screen name="waitingroom" options={{ headerShown: false }} />
+
       <Stack.Screen name="+not-found" options={{ headerShown: false }} />
     </Stack>
   );
