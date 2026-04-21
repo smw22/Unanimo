@@ -15,7 +15,7 @@ export function NavigationButton({
   return (
     <Pressable
       onPress={() => router.push(href)}
-      className={`h-15.5 rounded-full justify-center items-center ${
+      className={`rounded-full justify-center w-full py-4 items-center ${
         variant === "primary"
           ? "bg-primary"
           : "border-2 border-primary bg-transparent"

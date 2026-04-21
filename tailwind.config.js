@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./app/**/*.{js,jsx,ts,tsx}"],
+  content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
       colors: {
@@ -19,6 +19,9 @@ module.exports = {
         "text-secondary": "#888888",
         "text-muted": "#555555",
         "dark-text": "#0d0d0d",
+      },
+      spacing: {
+        15.5: "62px",
       },
     },
   },
