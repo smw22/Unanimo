@@ -5,6 +5,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import Toast from "react-native-toast-message";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -61,7 +62,7 @@ export default function Signup() {
   };
 
   return (
-    <View className="justify-between flex-1 gap-3 px-6 bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="justify-between flex-1 gap-3 px-6 bg-light-bg dark:bg-dark-bg">
       <View>
         <NavigationHeader title="Create a profile" />
 
@@ -149,6 +150,6 @@ export default function Signup() {
           {isSubmitting ? "Creating..." : "Create Profile"}
         </Text>
       </Pressable>
-    </View>
+    </SafeAreaView>
   );
 }

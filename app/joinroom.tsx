@@ -2,6 +2,7 @@ import NavigationHeader from "@/components/NavigationHeader";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function JoinRoom() {
   const [roomCode, setRoomCode] = useState("");
@@ -26,7 +27,7 @@ export default function JoinRoom() {
   };
 
   return (
-    <View className="flex-1 gap-40 px-6 pt-12 bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="flex-1 gap-40 px-container-spacing bg-light-bg dark:bg-dark-bg">
       <NavigationHeader title="Join with Code" />
 
       <View className="gap-4 p-6 bg-card rounded-2xl">
@@ -49,6 +50,6 @@ export default function JoinRoom() {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

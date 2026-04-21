@@ -1,6 +1,7 @@
 import { NavigationButton } from "@/components/NavigationButton";
 import { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -23,13 +24,13 @@ export default function Home() {
   }, [pulseAnim]);
 
   return (
-    <View className="justify-between flex-1 p-6 gap-9 bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="justify-between flex-1 px-container-spacing gap-9 bg-light-bg dark:bg-dark-bg">
       <View className="items-center gap-4 mt-40">
         <Animated.Image
           source={require("@/assets/images/unanimo-icon.png")}
           style={{
-            width: 96,
-            height: 96,
+            width: 128,
+            height: 128,
             opacity: pulseAnim,
           }}
           resizeMode="contain"
@@ -51,6 +52,6 @@ export default function Home() {
           href="/joinroom"
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

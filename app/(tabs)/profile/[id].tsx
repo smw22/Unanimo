@@ -5,6 +5,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { supabase } from "@/lib/supabase";
 import Toast from "react-native-toast-message";
 import { useState } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Profile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -33,7 +34,7 @@ export default function Profile() {
   };
 
   return (
-    <View className="flex-1 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
+    <SafeAreaView className="flex-1 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
       <NavigationHeader title="Profile" />
 
       {isLoading && <ActivityIndicator size="large" color="#7B2FFF" />}
@@ -62,6 +63,6 @@ export default function Profile() {
           </Pressable>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

@@ -1,5 +1,7 @@
-import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function History() {
-  return <View className="flex-1 px-4 pt-12 bg-light-bg dark:bg-dark-bg" />;
+  return (
+    <SafeAreaView className="flex-1 px-container-spacing bg-light-bg dark:bg-dark-bg" />
+  );
 }
