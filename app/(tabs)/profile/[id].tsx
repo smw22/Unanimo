@@ -16,11 +16,19 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Label from "@/components/Label";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
+const COLORS = [
+  { name: "purple", hex: "#7B2FFF" },
+  { name: "green", hex: "#22C55E" },
+  { name: "red", hex: "#EF4444" },
+  { name: "yellow", hex: "#FBBF24" },
+];
+
 export default function Profile() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditingUsername, setIsEditingUsername] = useState(false);
   const [editedUsername, setEditedUsername] = useState("");
+  const [updatingColor, setUpdatingColor] = useState<string | null>(null);
 
   const { id } = useLocalSearchParams();
   const { data: profile, isLoading, error, refetch } = useProfile(id as string);
@@ -64,14 +72,13 @@ export default function Profile() {
       });
 
       setIsEditingUsername(false);
-      refetch?.(); // Refresh profile data if your hook has refetch
+      refetch?.();
     } catch (error: any) {
       Toast.show({
         type: "error",
         text1: "Failed to update username",
         text2: error?.message ?? "Unknown error",
       });
-      // Reset to original if save fails
       setEditedUsername(profile?.username || "");
     } finally {
       setIsSubmitting(false);
@@ -81,6 +88,36 @@ export default function Profile() {
   const onCancel = () => {
     setEditedUsername(profile?.username || "");
     setIsEditingUsername(false);
+  };
+
+  const onColorChange = async (colorName: string) => {
+    if (profile?.color === colorName) return;
+
+    setUpdatingColor(colorName);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ color: colorName })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      Toast.show({
+        type: "success",
+        text1: `Color changed to ${colorName}`,
+        visibilityTime: 800,
+      });
+
+      refetch?.();
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Failed to update color",
+        text2: error?.message ?? "Unknown error",
+      });
+    } finally {
+      setUpdatingColor(null);
+    }
   };
 
   const onLogout = async () => {
@@ -160,11 +197,38 @@ export default function Profile() {
             )}
           </View>
 
+          {/* Avatar / Color Section */}
+          <View className="mt-6">
+            <Label>AVATAR COLOR</Label>
+            <View className="flex-row gap-3">
+              {COLORS.map((color) => (
+                <Pressable
+                  key={color.name}
+                  onPress={() => onColorChange(color.name)}
+                  disabled={updatingColor !== null}
+                  className={`w-20 h-20 rounded-lg border-4 justify-center items-center ${
+                    profile.color === color.name
+                      ? "border-white"
+                      : "border-transparent"
+                  } ${updatingColor === color.name ? "opacity-60" : ""}`}
+                  style={{ backgroundColor: color.hex }}
+                >
+                  {updatingColor === color.name && (
+                    <ActivityIndicator color="#fff" size="small" />
+                  )}
+                  {profile.color === color.name &&
+                    updatingColor !== color.name && (
+                      <Ionicons name="checkmark" size={28} color="#fff" />
+                    )}
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
           <Text className="text-text-primary mt-4">User ID: {profile.id}</Text>
           <Text className="text-text-primary mt-4">
-            Avatar: {profile.avatar_url}
+            Current Color: {profile.color}
           </Text>
-          <Text className="text-text-primary mt-4">Color: {profile.color}</Text>
 
           <View className="items-start gap-2 mt-6">
             <Label>OPTIONS</Label>
