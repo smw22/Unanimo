@@ -1,3 +1,4 @@
+import { useAuthContext } from "@/hooks/use-auth-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
 import { Text, View } from "react-native";
@@ -13,6 +14,9 @@ const TabIcon = ({ color, focused, iconName, label }: any) => (
 );
 
 export default function TabLayout() {
+  const { claims } = useAuthContext();
+  const userId = claims?.id;
+
   return (
     <Tabs
       screenOptions={{
@@ -60,19 +64,22 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              color={color}
-              focused={focused}
-              iconName={focused ? "person-sharp" : "person-outline"}
-              label="Profile"
-            />
-          ),
-        }}
-      />
+      {userId && (
+        <Tabs.Screen
+          name="profile"
+          options={{
+            href: `profile/${userId}`,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                color={color}
+                focused={focused}
+                iconName={focused ? "person-sharp" : "person-outline"}
+                label="Profile"
+              />
+            ),
+          }}
+        />
+      )}
     </Tabs>
   );
 }
