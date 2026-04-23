@@ -15,7 +15,7 @@ export function useRoom(roomId: string | null) {
 
     const fetchRoom = async () => {
       try {
-        // Fetch room data (title, code, etc)
+        // Room
         const { data: roomData, error: roomError } = await supabase
           .from("rooms")
           .select(
@@ -26,17 +26,20 @@ export function useRoom(roomId: string | null) {
 
         if (roomError) throw roomError;
 
-        // Fetch participants with user_id
+        // Participants (ordered)
         const { data: participantsData, error: participantsError } =
           await supabase
             .from("participants")
             .select("id, user_id, joined_at, room_id")
-            .eq("room_id", roomId);
+            .eq("room_id", roomId)
+            .order("joined_at", { ascending: true });
 
         if (participantsError) throw participantsError;
 
-        // Fetch all profiles for these participants
-        const userIds = participantsData?.map((p) => p.user_id) || [];
+        // Dedupe user ids
+        const userIds = Array.from(
+          new Set((participantsData || []).map((p) => p.user_id)),
+        );
         let profilesData: any[] = [];
 
         if (userIds.length > 0) {
@@ -45,25 +48,29 @@ export function useRoom(roomId: string | null) {
             .select("id, username, avatar_url, color")
             .in("id", userIds);
 
-          if (profilesError) throw profilesError;
-          profilesData = profiles || [];
+          if (profilesError) {
+            // Don't fail entire fetch if profiles can't be fetched; log and continue
+            console.error("Profiles error:", profilesError);
+          } else {
+            profilesData = profiles || [];
+          }
         }
 
-        // Merge participants with profiles
-        const enrichedParticipants =
-          participantsData?.map((participant) => ({
+        // Merge participants with matching profile (id === user_id)
+        const enrichedParticipants = (participantsData || []).map(
+          (participant) => ({
             ...participant,
-            profile: profilesData.find(
-              (profile) => profile.id === participant.user_id,
-            ),
-          })) || [];
+            profile:
+              profilesData.find((p) => p.id === participant.user_id) || null,
+          }),
+        );
 
         setRoom(roomData);
         setParticipants(enrichedParticipants);
         setError(null);
       } catch (err: any) {
         console.error("Error fetching room:", err);
-        setError(err.message);
+        setError(err.message ?? String(err));
       } finally {
         setIsLoading(false);
       }
@@ -71,9 +78,9 @@ export function useRoom(roomId: string | null) {
 
     fetchRoom();
 
-    // Subscribe to real-time updates on participants
-    const subscription = supabase
-      .channel(`room:${roomId}`)
+    // Subscriptions for realtime updates (participants + room)
+    const participantsSub = supabase
+      .channel(`participants:${roomId}`)
       .on(
         "postgres_changes",
         {
@@ -88,8 +95,25 @@ export function useRoom(roomId: string | null) {
       )
       .subscribe();
 
+    const roomSub = supabase
+      .channel(`rooms:${roomId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "rooms",
+          filter: `id=eq.${roomId}`,
+        },
+        () => {
+          fetchRoom();
+        },
+      )
+      .subscribe();
+
     return () => {
-      subscription.unsubscribe();
+      participantsSub.unsubscribe();
+      roomSub.unsubscribe();
     };
   }, [roomId]);
 
