@@ -1,7 +1,7 @@
 import { useAuthContext } from "@/hooks/use-auth-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, View, useColorScheme } from "react-native";
 
 const TabIcon = ({ color, focused, iconName, label }: any) => (
   <View className="items-center justify-center">
@@ -16,6 +16,11 @@ const TabIcon = ({ color, focused, iconName, label }: any) => (
 export default function TabLayout() {
   const { claims } = useAuthContext();
   const userId = claims?.id;
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
+
+  // pick the same colors you defined in tailwind.config.js
+  const tabBarBg = isDark ? "#0B0B0D" : "#F5F6F8";
 
   return (
     <Tabs
@@ -23,13 +28,13 @@ export default function TabLayout() {
         tabBarActiveTintColor: "#7B2FFF",
         tabBarInactiveTintColor: "#888",
         headerStyle: {
-          backgroundColor: "#25292e",
+          backgroundColor: isDark ? "#25292e" : "#ffffff",
         },
         headerShown: false,
         headerShadowVisible: false,
         headerTintColor: "#fff",
         tabBarStyle: {
-          backgroundColor: "#111111",
+          backgroundColor: tabBarBg, // use computed color
           paddingTop: 20,
           paddingBottom: 60,
           height: "auto",

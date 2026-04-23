@@ -15,8 +15,10 @@ module.exports = {
         navbar: "#111111",
         card: "#1a1a1a",
         border: "#2a2a2a",
-        "input-bg": "#1A1A1A",
-        "input-border": "#2A2A2A",
+        "input-bg": "#F3F4F6", // light background
+        "input-border": "#E5E7EB", // light border
+        "input-bg-dark": "#0B0B0D", // dark background
+        "input-border-dark": "#1F1F1F",
         "label-primary": "#8E8E8E",
         "text-primary": "#ffffff",
         "text-secondary": "#888888",

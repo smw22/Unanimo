@@ -57,16 +57,16 @@ export default function RoomCreation() {
             placeholderTextColor="#8d8d8d"
             value={roomName}
             onChangeText={setRoomName}
-            className="w-full p-4 font-bold text-left text-white border-2 rounded-2xl bg-input-bg border-input-border"
+            className="w-full p-4 font-bold text-left text-gray-900 dark:text-white border-2 rounded-2xl bg-gray-100 dark:bg-[#0B0B0D] border-gray-200 dark:border-[#1F1F1F]"
           />
         </View>
 
         <View className="items-start gap-2">
           <Label>OPTIONS</Label>
 
-          <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg border-input-border">
+          <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
             <View className="flex-col flex-1">
-              <Text className="text-sm font-bold text-white">
+              <Text className="text-sm font-bold text-black dark:text-white">
                 Anonymous voting
               </Text>
               <Text className="text-xs text-gray-400">
@@ -82,9 +82,11 @@ export default function RoomCreation() {
             />
           </View>
 
-          <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg border-input-border">
+          <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
             <View className="flex-col flex-1">
-              <Text className="text-sm font-bold text-white">Time limited</Text>
+              <Text className="text-sm font-bold text-black dark:text-white">
+                Time limited
+              </Text>
               <Text className="text-xs text-gray-400">
                 Set a timer for voting
               </Text>
@@ -101,9 +103,9 @@ export default function RoomCreation() {
             </View>
           </View>
 
-          <View className="flex-row items-center justify-between w-full p-4 border-2 rounded-2xl bg-input-bg border-input-border">
+          <View className="flex-row items-center justify-between w-full p-4 border-2 rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
             <View className="flex-col flex-1">
-              <Text className="text-sm font-bold text-white">
+              <Text className="text-sm font-bold text-black dark:text-white">
                 Max participants
               </Text>
               <Text className="text-xs text-gray-400">Limit who can join</Text>

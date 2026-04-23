@@ -4,8 +4,8 @@ import { Label } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
-import Toast from "react-native-toast-message";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function Login() {
   const [email, setEmail] = useState("");
