@@ -15,7 +15,7 @@ create extension if not exists pgcrypto;
 do $$
 begin
   if not exists (select 1 from pg_type where typname = 'room_status') then
-    create type public.room_status as enum ('waiting', 'voting', 'finished', 'closed');
+    create type public.room_status as enum ('waiting', 'proposal', 'voting', 'finished', 'closed');
   end if;
 end$$;
 

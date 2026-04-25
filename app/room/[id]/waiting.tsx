@@ -1,4 +1,3 @@
-import NavigationHeader from "@/components/NavigationHeader";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { useRoom } from "@/hooks/use-room";
 import { supabase } from "@/lib/supabase";
@@ -27,24 +26,24 @@ export default function WaitingRoom() {
       ? "1 participant"
       : `${participantCount} participants`;
 
-  const handleStartVoting = async () => {
+  const handleStartProposal = async () => {
     if (!room?.id) return;
 
     setIsStarting(true);
     try {
       const { error } = await supabase
         .from("rooms")
-        .update({ status: "voting" })
+        .update({ status: "proposal" })
         .eq("id", room.id);
 
       if (error) throw error;
 
       router.replace({
-        pathname: "/room/[id]/voting",
+        pathname: "/room/[id]/proposal",
         params: { id: room.id },
       });
     } catch (error) {
-      console.error("Error starting voting:", error);
+      console.error("Error starting proposal phase:", error);
     } finally {
       setIsStarting(false);
     }
@@ -112,7 +111,7 @@ export default function WaitingRoom() {
 
         {isHost && (
           <Pressable
-            onPress={handleStartVoting}
+            onPress={handleStartProposal}
             disabled={isStarting}
             className={`w-full h-14 rounded-full bg-primary justify-center items-center ${
               isStarting ? "opacity-60" : ""
@@ -121,7 +120,9 @@ export default function WaitingRoom() {
             {isStarting ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
-              <Text className="text-lg font-bold text-white">Start Voting</Text>
+              <Text className="text-lg font-bold text-white">
+                Start Proposal
+              </Text>
             )}
           </Pressable>
         )}

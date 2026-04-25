@@ -7,6 +7,7 @@ function normalizeRoomStatus(status: string | null | undefined) {
   const value = (status ?? "").toLowerCase();
 
   if (value === "waiting") return "waiting";
+  if (value === "proposal") return "proposal";
   if (value === "voting") return "voting";
   if (value === "closed") return "closed";
   if (value === "tiebreak") return "tiebreak";
@@ -54,6 +55,14 @@ export default function RoomIndex() {
     return (
       <Redirect
         href={{ pathname: "/room/[id]/waiting", params: { id: roomId } }}
+      />
+    );
+  }
+
+  if (routeByStatus === "proposal") {
+    return (
+      <Redirect
+        href={{ pathname: "/room/[id]/proposal", params: { id: roomId } } as any}
       />
     );
   }
