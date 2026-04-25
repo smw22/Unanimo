@@ -5,6 +5,13 @@ function normalizeRoomCode(roomCode: string) {
   return roomCode.trim().toUpperCase();
 }
 
+type RoomLookupResult = {
+  id: string;
+  code: string;
+  status: string;
+  max_participants: number | null;
+};
+
 export function useJoinRoom() {
   const { claims, profile } = useAuthContext();
 
@@ -21,10 +28,8 @@ export function useJoinRoom() {
     }
 
     const { data: room, error: roomError } = await supabase
-      .from("rooms")
-      .select("id, code, status, max_participants")
-      .eq("code", normalizedCode)
-      .maybeSingle();
+      .rpc("join_room_by_code", { room_code: normalizedCode })
+      .maybeSingle<RoomLookupResult>();
 
     if (roomError) {
       throw roomError;
@@ -36,31 +41,6 @@ export function useJoinRoom() {
 
     if (room.status !== "waiting") {
       throw new Error("This room is no longer accepting new participants.");
-    }
-
-    const { data: existingParticipant, error: participantLookupError } =
-      await supabase
-        .from("participants")
-        .select("id")
-        .eq("room_id", room.id)
-        .eq("user_id", userId)
-        .maybeSingle();
-
-    if (participantLookupError) {
-      throw participantLookupError;
-    }
-
-    if (!existingParticipant) {
-      const { error: participantInsertError } = await supabase
-        .from("participants")
-        .insert({
-          room_id: room.id,
-          user_id: userId,
-        });
-
-      if (participantInsertError) {
-        throw participantInsertError;
-      }
     }
 
     return {

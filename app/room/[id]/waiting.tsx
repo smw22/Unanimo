@@ -21,6 +21,11 @@ export default function WaitingRoom() {
   const [isStarting, setIsStarting] = useState(false);
 
   const isHost = room?.host_id === profile?.id;
+  const participantCount = participants.length;
+  const participantLabel =
+    participantCount === 1
+      ? "1 participant"
+      : `${participantCount} participants`;
 
   const handleStartVoting = async () => {
     if (!room?.id) return;
@@ -47,14 +52,12 @@ export default function WaitingRoom() {
 
   return (
     <SafeAreaView className="flex-1 p-container-spacing bg-light-bg dark:bg-dark-bg">
-      <NavigationHeader title={room?.title || "Waiting Room"} />
-
       <View className="flex-1 items-center justify-between py-12">
         <View className="items-center gap-4">
           <Text className="text-4xl font-bold tracking-widest text-white">
             {room?.title || "Waiting Room"}
           </Text>
-          <Text className="text-xl font-normal tracking-widest rounded-full border-2 border-input-border text-primary py-1 px-4 bg-input-bg">
+          <Text className="text-lg font-semibold tracking-widest rounded-full border-2 border-input-border text-primary py-1 px-4 bg-input-bg">
             code: {room?.code}
           </Text>
         </View>
@@ -96,6 +99,15 @@ export default function WaitingRoom() {
               </View>
             )}
           />
+        </View>
+
+        <View className="items-center gap-2">
+          <Text className="text-sm font-semibold text-primary">
+            {participantLabel} in the room
+          </Text>
+          <Text className="text-sm text-gray-400">
+            Waiting for all participants to join...
+          </Text>
         </View>
 
         {isHost && (
