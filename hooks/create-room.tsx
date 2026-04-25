@@ -12,7 +12,14 @@ export function useCreateRoom() {
       maxParticipants?: number;
     },
   ) => {
-    const userId = claims?.sub;
+    let userId = claims?.id;
+
+    if (!userId) {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      userId = session?.user?.id;
+    }
 
     if (!userId) {
       throw new Error("User not authenticated");
