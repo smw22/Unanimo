@@ -2,7 +2,7 @@ import { useAuthContext } from "@/hooks/use-auth-context";
 import { useRoom } from "@/hooks/use-room";
 import { supabase } from "@/lib/supabase";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -26,6 +26,15 @@ export default function WaitingRoom() {
       ? "1 participant"
       : `${participantCount} participants`;
 
+  useEffect(() => {
+    if (room?.status === "proposal" && room?.id) {
+      router.replace({
+        pathname: "/room/[id]/proposal",
+        params: { id: room.id },
+      });
+    }
+  }, [room?.id, room?.status]);
+
   const handleStartProposal = async () => {
     if (!room?.id) return;
 
@@ -37,11 +46,6 @@ export default function WaitingRoom() {
         .eq("id", room.id);
 
       if (error) throw error;
-
-      router.replace({
-        pathname: "/room/[id]/proposal",
-        params: { id: room.id },
-      });
     } catch (error) {
       console.error("Error starting proposal phase:", error);
     } finally {
