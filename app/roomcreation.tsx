@@ -33,10 +33,9 @@ export default function RoomCreation() {
       console.log("Room created:", room);
 
       router.replace({
-        pathname: "/waitingroom",
+        pathname: "/room/[id]/waiting",
         params: {
-          roomId: room.id,
-          roomCode: room.code,
+          id: room.id,
         },
       });
     } catch (error: any) {
