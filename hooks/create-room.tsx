@@ -12,7 +12,18 @@ export function useCreateRoom() {
       maxParticipants?: number;
     },
   ) => {
-    const userId = claims?.sub;
+    // Prøv flere feltnavne, fallback til supabase.auth.getUser()
+    let userId =
+      (claims as any)?.id ?? (claims as any)?.sub ?? (claims as any)?.user?.id;
+
+    if (!userId) {
+      try {
+        const { data: userData } = await supabase.auth.getUser();
+        userId = (userData as any)?.user?.id ?? userId;
+      } catch (e) {
+        console.warn("Failed to get user from supabase.auth.getUser()", e);
+      }
+    }
 
     if (!userId) {
       throw new Error("User not authenticated");
