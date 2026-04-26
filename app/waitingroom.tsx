@@ -37,20 +37,32 @@ export default function WaitingRoom() {
                   style={{
                     width: 124,
                     height: 124,
-                    backgroundColor: item.profile?.color || "#ccc",
-                    padding: 2,
+                    backgroundColor: "#fff",
+                    borderWidth: 2,
+                    borderColor: item.profile?.color || "#ccc",
+                    overflow: "hidden",
                   }}
                 >
                   {item.profile?.avatar_url ? (
                     <Image
                       source={{ uri: item.profile.avatar_url }}
                       style={{
-                        width: 124,
-                        height: 124,
-                        borderRadius: 62,
+                        width: "100%",
+                        height: "100%",
                       }}
+                      resizeMode="cover"
                     />
-                  ) : null}
+                  ) : (
+                    <Text
+                      style={{
+                        fontSize: 40,
+                        color: item.profile?.color || "#ccc",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {item.profile?.name?.charAt(0).toUpperCase() || "?"}
+                    </Text>
+                  )}
                 </View>
 
                 <Text className="font-semibold text-white">

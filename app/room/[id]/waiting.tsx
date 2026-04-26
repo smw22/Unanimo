@@ -55,12 +55,12 @@ export default function WaitingRoom() {
 
   return (
     <SafeAreaView className="flex-1 p-container-spacing bg-light-bg dark:bg-dark-bg">
-      <View className="flex-1 items-center justify-between py-12">
+      <View className="items-center justify-between flex-1 py-12">
         <View className="items-center gap-4">
           <Text className="text-4xl font-bold tracking-widest text-white">
             {room?.title || "Waiting Room"}
           </Text>
-          <Text className="text-lg font-semibold tracking-widest rounded-full border-2 border-input-border text-primary py-1 px-4 bg-input-bg">
+          <Text className="px-4 py-1 text-lg font-semibold tracking-widest border-2 rounded-full border-input-border text-primary bg-input-bg">
             code: {room?.code}
           </Text>
         </View>
@@ -80,20 +80,34 @@ export default function WaitingRoom() {
                   style={{
                     width: 124,
                     height: 124,
-                    backgroundColor: item.profile?.color || "#ccc",
-                    padding: 2,
+                    borderWidth: 4,
+                    borderColor: item.profile?.color || "#ccc",
+                    backgroundColor: item.profile?.avatar_url
+                      ? "#fff"
+                      : item.profile?.color || "#ccc",
+                    overflow: "hidden",
                   }}
                 >
                   {item.profile?.avatar_url ? (
                     <Image
                       source={{ uri: item.profile.avatar_url }}
                       style={{
-                        width: 124,
-                        height: 124,
-                        borderRadius: 62,
+                        width: "100%",
+                        height: "100%",
                       }}
+                      resizeMode="cover"
                     />
-                  ) : null}
+                  ) : (
+                    <Text
+                      style={{
+                        fontSize: 48,
+                        fontWeight: "bold",
+                        color: "#fff",
+                      }}
+                    >
+                      {item.profile?.username?.[0]?.toUpperCase() || "?"}
+                    </Text>
+                  )}
                 </View>
 
                 <Text className="font-semibold text-white">
