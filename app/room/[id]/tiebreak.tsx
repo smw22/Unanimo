@@ -1,6 +1,7 @@
+import { NavigationButton } from "@/components/NavigationButton";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { supabase } from "@/lib/supabase";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -55,13 +56,11 @@ export default function TieBreak() {
               filter: `id=eq.${tiebreakerId}`,
             },
             (payload: any) => {
-              console.log("✅ Tiebreaker realtime update:", payload.new);
               if (mounted) setTiebreaker(payload.new);
             },
           )
           .subscribe((status: any) => {
             if (status === "SUBSCRIBED") {
-              console.log("✅ Channel subscribed successfully");
             }
           });
       } catch (e) {
@@ -243,22 +242,11 @@ export default function TieBreak() {
           </View>
         )}
       </View>
-
-      <Pressable
-        onPress={() => {
-          if (!roomId) {
-            console.error("Room ID not available");
-            return;
-          }
-          router.replace({
-            pathname: "/room/[id]/results",
-            params: { id: roomId },
-          });
-        }}
-        className="items-center justify-center w-full h-12 bg-gray-800 rounded-full"
-      >
-        <Text className="text-white">Back to results</Text>
-      </Pressable>
+      <NavigationButton
+        href={`/room/${roomId}/results`}
+        variant="secondary"
+        label="Back to results"
+      ></NavigationButton>
     </SafeAreaView>
   );
 }

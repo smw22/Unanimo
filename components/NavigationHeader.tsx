@@ -28,7 +28,9 @@ export default function NavigationHeader({ title }: NavigationHeaderProps) {
         className="absolute inset-0 items-center justify-center"
       >
         {!!title && (
-          <Text className="text-lg font-bold text-white">{title}</Text>
+          <Text className="text-lg font-bold text-black dark:text-white">
+            {title}
+          </Text>
         )}
       </View>
     </View>
