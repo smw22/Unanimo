@@ -14,6 +14,9 @@ export default function TieBreak() {
   const [tiebreaker, setTiebreaker] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [timeToGreen, setTimeToGreen] = useState<number | null>(null);
+  const [room, setRoom] = useState<any | null>(null);
+  const [arming, setArming] = useState(false);
+  const [myParticipant, setMyParticipant] = useState<any | null>(null);
 
   useEffect(() => {
     if (!tiebreakerId) {
@@ -56,10 +59,13 @@ export default function TieBreak() {
               if (mounted) setTiebreaker(payload.new);
             },
           )
-          .subscribe();
+          .subscribe((status: any) => {
+            if (status === "SUBSCRIBED") {
+              console.log("✅ Channel subscribed successfully");
+            }
+          });
       } catch (e) {
         console.error("❌ Realtime setup failed:", e);
-        // Fallback: just use polling
       }
     };
 
@@ -73,6 +79,33 @@ export default function TieBreak() {
       }
     };
   }, [tiebreakerId]);
+
+  useEffect(() => {
+    if (!roomId) return;
+    const fetchRoom = async () => {
+      const { data } = await supabase
+        .from("rooms")
+        .select("*")
+        .eq("id", roomId)
+        .maybeSingle();
+      setRoom(data);
+    };
+    fetchRoom();
+  }, [roomId]);
+
+  useEffect(() => {
+    if (!roomId || !profile?.id) return;
+    const fetchMyParticipant = async () => {
+      const { data } = await supabase
+        .from("participants")
+        .select("*")
+        .eq("room_id", roomId)
+        .eq("user_id", profile.id)
+        .maybeSingle();
+      setMyParticipant(data);
+    };
+    fetchMyParticipant();
+  }, [roomId, profile?.id]);
 
   // compute ms until green
   useEffect(() => {
@@ -89,6 +122,58 @@ export default function TieBreak() {
 
     return () => clearInterval(interval);
   }, [tiebreaker?.green_at]);
+
+  const isHost = profile?.id === room?.host_id;
+
+  const handleArmTiebreaker = async () => {
+    if (!tiebreakerId || arming) return; // Prevent multiple calls
+
+    setArming(true);
+    try {
+      const greenAt = new Date(Date.now() + 3000);
+      const { error } = await supabase
+        .from("tiebreakers")
+        .update({ status: "armed", green_at: greenAt })
+        .eq("id", tiebreakerId);
+      if (error) {
+        console.error("Failed to arm tiebreaker:", error);
+      } else {
+        console.log("✅ Tiebreaker armed");
+      }
+    } catch (e) {
+      console.error("Error arming tiebreaker:", e);
+    } finally {
+      setArming(false);
+    }
+  };
+
+  const handleTap = async () => {
+    if (!tiebreakerId || !myParticipant || !tiebreaker?.green_at) return;
+
+    const reactionMs = Math.max(
+      0,
+      Date.now() - new Date(tiebreaker.green_at).getTime(),
+    );
+    const isFalseStart = reactionMs < 0;
+
+    try {
+      const { error } = await supabase.from("tiebreaker_attempts").insert({
+        tiebreaker_id: tiebreakerId,
+        participant_id: myParticipant.id,
+        proposal_id: myParticipant.proposal_id, // from tiebreaker_participants
+        reaction_ms: Math.abs(reactionMs),
+        false_start: isFalseStart,
+      });
+
+      if (error) {
+        console.error("Failed to record attempt:", error);
+      } else {
+        console.log("✅ Attempt recorded:", { reactionMs, isFalseStart });
+      }
+    } catch (e) {
+      console.error("Error recording attempt:", e);
+    }
+  };
 
   if (loading) {
     return (
@@ -115,9 +200,26 @@ export default function TieBreak() {
         </Text>
 
         {tiebreaker.status === "pending" && (
-          <Text className="text-sm text-gray-300">
-            Waiting for host to arm the tiebreaker…
-          </Text>
+          <>
+            <Text className="text-sm text-gray-300">
+              Waiting for host to arm the tiebreaker…
+            </Text>
+            {isHost && (
+              <Pressable
+                onPress={handleArmTiebreaker}
+                disabled={arming || tiebreaker.status !== "pending"}
+                className={`items-center justify-center h-12 px-6 rounded-full ${
+                  arming || tiebreaker.status !== "pending"
+                    ? "bg-gray-600 opacity-50"
+                    : "bg-purple-600"
+                }`}
+              >
+                <Text className="font-bold text-white">
+                  {arming ? "Arming..." : "Arm Tiebreaker"}
+                </Text>
+              </Pressable>
+            )}
+          </>
         )}
 
         {tiebreaker.status === "armed" && timeToGreen !== null && (
@@ -127,9 +229,7 @@ export default function TieBreak() {
             </Text>
 
             <Pressable
-              onPress={() => {
-                console.log("Tapped (implement attempt insert)");
-              }}
+              onPress={handleTap}
               className="items-center justify-center w-64 bg-green-500 rounded-full h-14"
             >
               <Text className="font-bold text-white">TAP</Text>
