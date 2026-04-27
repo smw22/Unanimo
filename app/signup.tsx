@@ -1,11 +1,23 @@
+import Label from "@/components/Label";
 import NavigationHeader from "@/components/NavigationHeader";
+import AvatarColorSection from "@/components/profile/AvatarColorSection";
+import AvatarImageSection from "@/components/profile/AvatarImageSection";
+import { COLORS } from "@/helpers/color-conversion";
+import { uploadAvatar } from "@/lib/storage-service";
 import { supabase } from "@/lib/supabase";
-import { Label } from "@react-navigation/elements";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, Text, TextInput, View } from "react-native";
-import Toast from "react-native-toast-message";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -13,7 +25,41 @@ export default function Signup() {
   const [username, setUsername] = useState("");
   const [color, setColor] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [selectedAvatarUri, setSelectedAvatarUri] = useState<string | null>(
+    null,
+  );
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onPickImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permissionResult.granted) {
+        Alert.alert(
+          "Permission required",
+          "Permission to access the media library is required.",
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      setSelectedAvatarUri(result.assets[0].uri);
+    } catch (error: any) {
+      Alert.alert("Image selection failed", error?.message ?? "Unknown error");
+    }
+  };
 
   const onSignUp = async () => {
     if (!email.trim() || !password || !username.trim()) {
@@ -41,12 +87,36 @@ export default function Signup() {
           data: {
             username: username.trim(),
             color: color.trim() || null,
-            avatar_url: avatarUrl.trim() || null,
+            avatar_url: selectedAvatarUri ? null : avatarUrl.trim() || null,
           },
         },
       });
 
       if (error) throw error;
+
+      if (selectedAvatarUri && data?.user?.id) {
+        try {
+          setIsUploadingImage(true);
+          const publicUrl = await uploadAvatar(selectedAvatarUri, data.user.id);
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ avatar_url: publicUrl })
+            .eq("id", data.user.id);
+
+          if (updateError) {
+            throw updateError;
+          }
+        } catch (uploadError: any) {
+          console.warn("Avatar upload failed during signup:", uploadError);
+          Toast.show({
+            type: "error",
+            text1: "Avatar upload failed",
+            text2: uploadError?.message ?? "Please try again later",
+          });
+        } finally {
+          setIsUploadingImage(false);
+        }
+      }
 
       Toast.show({
         type: "success",
@@ -63,16 +133,14 @@ export default function Signup() {
 
   return (
     <SafeAreaView className="justify-between flex-1 gap-3 px-6 bg-light-bg dark:bg-dark-bg">
-      <View>
+      <ScrollView>
         <NavigationHeader title="Create a profile" />
 
         <View className="gap-3 mt-6">
-          <View className="gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              EMAIL
-            </Label>
+          <View className="items-start gap-1">
+            <Label>EMAIL</Label>
             <TextInput
-              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 w-full border-input-border bg-input-bg  px-3.5 text-dark-text dark:text-text-primary placeholder:text-text-secondary dark:placeholder:text-text-secondary dark:bg-input-bg-dark dark:border-input-border-dark"
               placeholder="Email"
               placeholderTextColor="#8d8d8d"
               keyboardType="email-address"
@@ -82,12 +150,10 @@ export default function Signup() {
             />
           </View>
 
-          <View className="gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              PASSWORD
-            </Label>
+          <View className="items-start gap-1">
+            <Label>PASSWORD</Label>
             <TextInput
-              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 w-full border-input-border bg-input-bg  px-3.5 text-dark-text dark:text-text-primary placeholder:text-text-secondary dark:placeholder:text-text-secondary dark:bg-input-bg-dark dark:border-input-border-dark"
               placeholder="Password"
               placeholderTextColor="#8d8d8d"
               secureTextEntry
@@ -96,12 +162,10 @@ export default function Signup() {
             />
           </View>
 
-          <View className="gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              USERNAME
-            </Label>
+          <View className="items-start gap-1">
+            <Label>USERNAME</Label>
             <TextInput
-              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border-2 w-full border-input-border bg-input-bg  px-3.5 text-dark-text dark:text-text-primary placeholder:text-text-secondary dark:placeholder:text-text-secondary dark:bg-input-bg-dark dark:border-input-border-dark"
               placeholder="Username"
               placeholderTextColor="#8d8d8d"
               autoCapitalize="none"
@@ -110,34 +174,24 @@ export default function Signup() {
             />
           </View>
 
-          <View className="gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              COLOR
-            </Label>
-            <TextInput
-              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
-              placeholder="Color (optional)"
-              placeholderTextColor="#8d8d8d"
-              value={color}
-              onChangeText={setColor}
+          <View className="items-start w-full gap-1">
+            <AvatarColorSection
+              colors={COLORS}
+              currentColor={color || null}
+              updatingColor={null}
+              onColorChange={setColor}
             />
           </View>
 
-          <View className="gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              AVATAR URL
-            </Label>
-            <TextInput
-              className="py-4 rounded-2xl border-2 border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
-              placeholder="Avatar URL (optional)"
-              placeholderTextColor="#8d8d8d"
-              autoCapitalize="none"
-              value={avatarUrl}
-              onChangeText={setAvatarUrl}
+          <View className="items-start gap-1">
+            <AvatarImageSection
+              avatarUrl={selectedAvatarUri}
+              isUploading={isUploadingImage}
+              onPickImage={onPickImage}
             />
           </View>
         </View>
-      </View>
+      </ScrollView>
 
       <Pressable
         onPress={onSignUp}

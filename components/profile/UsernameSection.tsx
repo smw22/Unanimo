@@ -1,6 +1,6 @@
-import { View, TextInput, Pressable, Text } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Label from "@/components/Label";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Pressable, Text, TextInput, useColorScheme, View } from "react-native";
 
 interface UsernameSectionProps {
   username: string;
@@ -23,41 +23,55 @@ export default function UsernameSection({
   onCancel,
   onChangeText,
 }: UsernameSectionProps) {
+  const colorScheme = useColorScheme();
+
   return (
     <View className="mt-4">
       <Label>USERNAME</Label>
       {isEditing ? (
-        <View className="flex-row items-center gap-2 border-2 border-purple-600 rounded-lg px-3 py-2">
+        <View className="flex-row items-center gap-2 px-3 py-2 border-2 rounded-lg border-primary">
           <TextInput
-            className="flex-1 text-white text-lg"
+            className="flex-1 text-lg text-dark-text dark:text-text-primary"
             placeholder="Enter username"
             placeholderTextColor="#888"
             value={editedUsername}
             onChangeText={onChangeText}
             editable={!isSubmitting}
           />
-          <Pressable onPress={onSave} disabled={isSubmitting} className="p-2">
+          <Pressable onPress={onSave} disabled={isSubmitting} className="py-2">
             <Ionicons
               name="checkmark"
-              size={20}
+              size={24}
               color={isSubmitting ? "#888" : "#7B2FFF"}
             />
           </Pressable>
-          <Pressable onPress={onCancel} disabled={isSubmitting} className="p-2">
+          <Pressable
+            onPress={onCancel}
+            disabled={isSubmitting}
+            className="py-2"
+          >
             <Ionicons
               name="close"
-              size={20}
-              color={isSubmitting ? "#888" : "#999"}
+              size={24}
+              color={
+                isSubmitting ? "#888" : colorScheme === "dark" ? "#fff" : "#000"
+              }
             />
           </Pressable>
         </View>
       ) : (
         <Pressable
           onPress={onEdit}
-          className="flex-row items-center justify-between border-2 border-input-border rounded-lg px-3 py-3 bg-input-bg"
+          className="flex-row items-center justify-between px-3 py-3 border-2 rounded-lg border-input-border bg-input-bg  px-3.5 text-dark-text dark:text-text-primary placeholder:text-text-secondary dark:placeholder:text-text-secondary dark:bg-input-bg-dark dark:border-input-border-dark"
         >
-          <Text className="text-white text-lg font-semibold">{username}</Text>
-          <Ionicons name="pencil" size={20} color="#fff" />
+          <Text className="text-lg font-semibold text-dark-text dark:text-text-primary">
+            {username}
+          </Text>
+          <Ionicons
+            name="pencil"
+            size={20}
+            color={colorScheme === "dark" ? "#fff" : "#000"}
+          />
         </Pressable>
       )}
     </View>

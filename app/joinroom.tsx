@@ -44,18 +44,18 @@ export default function JoinRoom() {
     <SafeAreaView className="flex-1 gap-40 px-container-spacing bg-light-bg dark:bg-dark-bg">
       <NavigationHeader title="Join with Code" />
 
-      <View className="gap-4 p-6 bg-card rounded-2xl">
+      <View className="gap-4 p-6 bg-light-bg dark:bg-dark-bg rounded-2xl">
         <TextInput
           placeholder="Room Code"
           value={roomCode}
           onChangeText={setRoomCode}
-          className="p-4 font-bold text-center text-white border-2 rounded-lg border-primary"
+          className="p-4 font-bold text-center border-2 rounded-lg text-dark-text dark:text-text-primary border-primary"
         />
 
         <Pressable
           onPress={joinRoom}
           disabled={isSubmitting}
-          className={`mt-2 h-14 rounded-full bg-primary justify-center items-center ${
+          className={` h-14 rounded-full bg-primary justify-center items-center ${
             isSubmitting ? "opacity-60" : ""
           }`}
         >

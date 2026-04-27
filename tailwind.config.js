@@ -10,8 +10,8 @@ module.exports = {
         success: "#39c060",
         danger: "#ff3b3b",
         warning: "#ffb347",
-        "light-bg": "#ffffff",
-        "dark-bg": "#0d0d0d",
+        "light-bg": "#ffffff", // light background
+        "dark-bg": "#0d0d0d", // dark background
         navbar: "#111111",
         card: "#1a1a1a",
         border: "#2a2a2a",
@@ -20,10 +20,10 @@ module.exports = {
         "input-bg-dark": "#0B0B0D", // dark background
         "input-border-dark": "#1F1F1F",
         "label-primary": "#8E8E8E",
-        "text-primary": "#ffffff",
+        "text-primary": "#ffffff", //light text color
         "text-secondary": "#888888",
         "text-muted": "#555555",
-        "dark-text": "#0d0d0d",
+        "dark-text": "#0d0d0d", // dark text color
       },
       spacing: {
         15.5: "62px",
