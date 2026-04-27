@@ -123,12 +123,16 @@ export default function Results() {
   }, [proposals, voteCounts, maxVotes]);
 
   const winner = useMemo(() => {
-    if (tiedProposals.length === 1) return tiedProposals[0];
+    // vigtig: hvis tiebreak har sat winner_proposal_id, brug den først
     if (room?.winner_proposal_id) {
       return proposals.find((p) => p.id === room.winner_proposal_id) ?? null;
     }
+
+    // ellers normal entydig vinder uden tiebreak
+    if (tiedProposals.length === 1) return tiedProposals[0];
+
     return null;
-  }, [tiedProposals, room, proposals]);
+  }, [room?.winner_proposal_id, proposals, tiedProposals]);
 
   const isHost = room?.host_id === profile?.id;
   const tieExists = tiedProposals.length >= 2 && maxVotes >= 1;
