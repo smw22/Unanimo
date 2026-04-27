@@ -1,6 +1,6 @@
-import { View, Pressable, ActivityIndicator } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import Label from "@/components/Label";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { ActivityIndicator, Pressable, View } from "react-native";
 
 interface Color {
   name: string;
@@ -21,8 +21,8 @@ export default function AvatarColorSection({
   onColorChange,
 }: AvatarColorSectionProps) {
   return (
-    <View className="mt-6">
-      <Label>AVATAR COLOR</Label>
+    <View className="gap-1 mt-6">
+      <Label>COLOR</Label>
       <View className="flex-row gap-3">
         {colors.map((color) => (
           <Pressable

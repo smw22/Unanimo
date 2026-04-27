@@ -1,19 +1,26 @@
-import NavigationHeader from "@/components/NavigationHeader";
-import UsernameSection from "@/components/profile/UsernameSection";
-import AvatarImageSection from "@/components/profile/AvatarImageSection";
-import AvatarColorSection from "@/components/profile/AvatarColorSection";
-import LogoutButton from "@/components/profile/LogoutButton";
-import { useLocalSearchParams } from "expo-router";
-import { Text, View, ActivityIndicator, Alert, Switch } from "react-native";
-import { useProfile } from "@/hooks/use-profile";
-import { supabase } from "@/lib/supabase";
-import { uploadAvatar } from "@/lib/storage-service";
-import { COLORS } from "@/helpers/color-conversion";
-import Toast from "react-native-toast-message";
-import { useState, useEffect } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
-import * as ImagePicker from "expo-image-picker";
 import Label from "@/components/Label";
+import NavigationHeader from "@/components/NavigationHeader";
+import AvatarColorSection from "@/components/profile/AvatarColorSection";
+import AvatarImageSection from "@/components/profile/AvatarImageSection";
+import LogoutButton from "@/components/profile/LogoutButton";
+import UsernameSection from "@/components/profile/UsernameSection";
+import { COLORS } from "@/helpers/color-conversion";
+import { useProfile } from "@/hooks/use-profile";
+import { uploadAvatar } from "@/lib/storage-service";
+import { supabase } from "@/lib/supabase";
+import * as ImagePicker from "expo-image-picker";
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Switch,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 export default function Profile() {
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(false);
@@ -194,60 +201,62 @@ export default function Profile() {
 
   return (
     <SafeAreaView className="flex-1 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
-      <NavigationHeader title="Profile" />
+      <ScrollView>
+        <NavigationHeader title="Profile" />
 
-      {isLoading && <ActivityIndicator size="large" color="#7B2FFF" />}
-      {error && <Text className="text-red-500 mt-4">Error: {error}</Text>}
+        {isLoading && <ActivityIndicator size="large" color="#7B2FFF" />}
+        {error && <Text className="mt-4 text-red-500">Error: {error}</Text>}
 
-      {profile && (
-        <>
-          <UsernameSection
-            username={profile.username}
-            isEditing={isEditingUsername}
-            editedUsername={editedUsername}
-            isSubmitting={isSubmitting}
-            onEdit={() => setIsEditingUsername(true)}
-            onSave={onSaveUsername}
-            onCancel={onCancel}
-            onChangeText={setEditedUsername}
-          />
+        {profile && (
+          <>
+            <UsernameSection
+              username={profile.username}
+              isEditing={isEditingUsername}
+              editedUsername={editedUsername}
+              isSubmitting={isSubmitting}
+              onEdit={() => setIsEditingUsername(true)}
+              onSave={onSaveUsername}
+              onCancel={onCancel}
+              onChangeText={setEditedUsername}
+            />
 
-          <AvatarImageSection
-            avatarUrl={displayAvatarUrl}
-            isUploading={isUploadingImage}
-            onPickImage={onPickImage}
-          />
+            <AvatarImageSection
+              avatarUrl={displayAvatarUrl}
+              isUploading={isUploadingImage}
+              onPickImage={onPickImage}
+            />
 
-          <AvatarColorSection
-            colors={COLORS}
-            currentColor={profile.color}
-            updatingColor={updatingColor}
-            onColorChange={onColorChange}
-          />
+            <AvatarColorSection
+              colors={COLORS}
+              currentColor={profile.color}
+              updatingColor={updatingColor}
+              onColorChange={onColorChange}
+            />
 
-          <View className="items-start gap-2 mt-6">
-            <Label>OPTIONS</Label>
+            <View className="items-start gap-2">
+              <Label>OPTIONS</Label>
 
-            <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg border-input-border">
-              <View className="flex-col flex-1">
-                <Text className="text-sm font-bold text-white">
-                  Notifications
-                </Text>
-                <Text className="text-xs text-gray-400">Never miss out</Text>
+              <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg border-input-border">
+                <View className="flex-col flex-1">
+                  <Text className="text-sm font-bold text-dark-text dark:text-text-primary">
+                    Notifications
+                  </Text>
+                  <Text className="text-xs text-gray-400">Never miss out</Text>
+                </View>
+                <Switch
+                  trackColor={{ false: "#767577", true: "#7B2FFF" }}
+                  thumbColor={"#f4f3f4"}
+                  ios_backgroundColor="#1A1A1A"
+                  onValueChange={setIsNotificationsEnabled}
+                  value={isNotificationsEnabled}
+                />
               </View>
-              <Switch
-                trackColor={{ false: "#767577", true: "#7B2FFF" }}
-                thumbColor={"#f4f3f4"}
-                ios_backgroundColor="#1A1A1A"
-                onValueChange={setIsNotificationsEnabled}
-                value={isNotificationsEnabled}
-              />
             </View>
-          </View>
 
-          <LogoutButton isSubmitting={isSubmitting} onLogout={onLogout} />
-        </>
-      )}
+            <LogoutButton isSubmitting={isSubmitting} onLogout={onLogout} />
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
