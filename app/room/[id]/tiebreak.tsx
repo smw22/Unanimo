@@ -22,6 +22,7 @@ export default function TieBreak() {
     }
 
     let mounted = true;
+    let channel: any;
 
     const fetchRow = async () => {
       try {
@@ -38,29 +39,43 @@ export default function TieBreak() {
       }
     };
 
-    fetchRow();
+    const setupRealtimeWithRetry = () => {
+      try {
+        channel = supabase
+          .channel(`tiebreak-screen:${tiebreakerId}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "*",
+              schema: "public",
+              table: "tiebreakers",
+              filter: `id=eq.${tiebreakerId}`,
+            },
+            (payload: any) => {
+              console.log("✅ Tiebreaker realtime update:", payload.new);
+              if (mounted) setTiebreaker(payload.new);
+            },
+          )
+          .subscribe((status: string) => {
+            console.log("Subscription status:", status);
+            if (status === "SUBSCRIBED") {
+              console.log("✅ Realtime connected");
+            }
+          });
+      } catch (e) {
+        console.error("❌ Realtime setup failed:", e);
+        // Fallback: just use polling
+      }
+    };
 
-    // Build channel with UNIQUE name to avoid conflicts
-    const channel = supabase
-      .channel(`tiebreak-screen:${tiebreakerId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "tiebreakers",
-          filter: `id=eq.${tiebreakerId}`,
-        },
-        (payload) => {
-          console.log("Tiebreaker updated:", payload.new);
-          if (mounted) setTiebreaker(payload.new);
-        },
-      )
-      .subscribe(); // Call subscribe AFTER all .on() handlers
+    fetchRow();
+    setupRealtimeWithRetry();
 
     return () => {
       mounted = false;
-      channel.unsubscribe();
+      if (channel) {
+        channel.unsubscribe();
+      }
     };
   }, [tiebreakerId]);
 
