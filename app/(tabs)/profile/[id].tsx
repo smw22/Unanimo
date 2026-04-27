@@ -1,5 +1,4 @@
 import Label from "@/components/Label";
-import NavigationHeader from "@/components/NavigationHeader";
 import AvatarColorSection from "@/components/profile/AvatarColorSection";
 import AvatarImageSection from "@/components/profile/AvatarImageSection";
 import LogoutButton from "@/components/profile/LogoutButton";
@@ -202,7 +201,9 @@ export default function Profile() {
   return (
     <SafeAreaView className="flex-1 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
       <ScrollView>
-        <NavigationHeader title="Profile" />
+        <View className="pb-4 justify-center items-center">
+          <Text className="text-2xl font-bold text-white">Profile</Text>
+        </View>
 
         {isLoading && <ActivityIndicator size="large" color="#7B2FFF" />}
         {error && <Text className="mt-4 text-red-500">Error: {error}</Text>}
