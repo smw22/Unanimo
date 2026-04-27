@@ -1,6 +1,6 @@
+import Label from "@/components/Label";
 import NavigationHeader from "@/components/NavigationHeader";
 import { supabase } from "@/lib/supabase";
-import { Label } from "@react-navigation/elements";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
@@ -46,11 +46,9 @@ export default function Login() {
         <NavigationHeader title="Login" />
         <View className="gap-3 mt-6">
           <View className="items-start gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              EMAIL
-            </Label>
+            <Label>EMAIL</Label>
             <TextInput
-              className="py-4 rounded-3.5 border-1.5 w-full border-border bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border w-full border-input-border bg-input-bg  px-3.5 text-dark-text dark:text-text-primary placeholder:text-text-secondary dark:placeholder:text-text-secondary dark:bg-input-bg-dark dark:border-input-border-dark"
               placeholder="Email"
               placeholderTextColor="#8d8d8d"
               keyboardType="email-address"
@@ -61,11 +59,9 @@ export default function Login() {
           </View>
 
           <View className="items-start gap-1">
-            <Label className="text-xs font-semibold text-text-secondary">
-              PASSWORD
-            </Label>
+            <Label>PASSWORD</Label>
             <TextInput
-              className="py-4 rounded-3.5 border-1.5 border-border w-full bg-card px-3.5 text-text-primary placeholder:text-gray-600"
+              className="py-4 rounded-2xl border w-full border-input-border bg-input-bg  px-3.5 text-dark-text dark:text-text-primary placeholder:text-text-secondary dark:placeholder:text-text-secondary dark:bg-input-bg-dark dark:border-input-border-dark"
               placeholder="Password"
               placeholderTextColor="#8d8d8d"
               secureTextEntry

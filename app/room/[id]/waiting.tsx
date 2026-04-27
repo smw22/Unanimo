@@ -57,7 +57,7 @@ export default function WaitingRoom() {
     <SafeAreaView className="flex-1 p-container-spacing bg-light-bg dark:bg-dark-bg">
       <View className="items-center justify-between flex-1 py-12">
         <View className="items-center gap-4">
-          <Text className="text-4xl font-bold tracking-widest text-white">
+          <Text className="text-4xl font-bold tracking-widest text-dark-text dark:text-text-primary">
             {room?.title || "Waiting Room"}
           </Text>
           <Text className="px-4 py-1 text-lg font-semibold tracking-widest border-2 rounded-full border-input-border text-primary bg-input-bg">
@@ -110,7 +110,7 @@ export default function WaitingRoom() {
                   )}
                 </View>
 
-                <Text className="font-semibold text-white">
+                <Text className="font-semibold text-dark-text dark:text-text-primary">
                   {item.profile?.username || "Anonymous"}
                 </Text>
               </View>
