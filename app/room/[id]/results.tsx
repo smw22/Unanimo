@@ -90,58 +90,6 @@ export default function Results() {
     };
 
     fetch();
-
-    // Subscribe to tiebreaker INSERT events
-    const channel = supabase
-      .channel(`tiebreakers:room:${roomId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "tiebreakers",
-          filter: `room_id=eq.${roomId}`,
-        },
-        async (payload) => {
-          const tiebreakerId = payload.new.id;
-
-          // Fetch current user's participant in this room
-          const { data: myParticipantRow } = await supabase
-            .from("participants")
-            .select("id")
-            .eq("room_id", roomId)
-            .eq("user_id", profile?.id)
-            .maybeSingle();
-
-          if (!myParticipantRow) {
-            setTiebreakInProgress(true);
-            return;
-          }
-
-          // Check membership
-          const { data: membership } = await supabase
-            .from("tiebreaker_participants")
-            .select("participant_id")
-            .eq("tiebreaker_id", tiebreakerId)
-            .eq("participant_id", myParticipantRow.id)
-            .maybeSingle();
-
-          if (membership) {
-            // Use setTimeout to defer navigation until after render
-            router.push({
-              pathname: "/room/[id]/tiebreak",
-              params: { id: roomId, tiebreakerId },
-            });
-          } else {
-            setTiebreakInProgress(true);
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      channel.unsubscribe();
-    };
   }, [roomId, profile?.id]);
 
   const voteCounts = useMemo(() => {
