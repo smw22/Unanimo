@@ -237,7 +237,7 @@ export default function Profile() {
             <View className="items-start gap-2 mt-2 ">
               <Label>OPTIONS</Label>
 
-              <View className="flex-row justify-between w-full p-4 border rounded-2xl bg-light-bg dark:bg-dark-bg border-input-bg-dark dark:border-input-border">
+              <View className="flex-row justify-between w-full p-4 border rounded-2xl bg-light-bg dark:bg-dark-bg border-input-border dark:border-input-border-dark">
                 <View className="flex-col flex-1">
                   <Text className="text-sm font-bold text-dark-text dark:text-text-primary">
                     Notifications
