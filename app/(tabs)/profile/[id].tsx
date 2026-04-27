@@ -201,10 +201,8 @@ export default function Profile() {
   return (
     <SafeAreaView className="flex-1 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
       <ScrollView>
-        <View className="pb-4 justify-center items-center">
-          <Text className="text-2xl font-bold text-black dark:text-white">
-            Profile
-          </Text>
+        <View className="items-center justify-center pb-4">
+          <Text className="text-2xl font-bold text-white">Profile</Text>
         </View>
 
         {isLoading && <ActivityIndicator size="large" color="#7B2FFF" />}
@@ -236,10 +234,10 @@ export default function Profile() {
               onColorChange={onColorChange}
             />
 
-            <View className="items-start gap-2">
+            <View className="items-start gap-2 mt-2 ">
               <Label>OPTIONS</Label>
 
-              <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg border-input-border">
+              <View className="flex-row justify-between w-full p-4 border rounded-2xl bg-light-bg dark:bg-dark-bg border-input-bg-dark dark:border-input-border">
                 <View className="flex-col flex-1">
                   <Text className="text-sm font-bold text-dark-text dark:text-text-primary">
                     Notifications
