@@ -14,7 +14,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WaitingRoom() {
-  const { profile } = useAuthContext();
+  const { profile, isLoading } = useAuthContext();
   const { id: roomId } = useLocalSearchParams<{ id?: string }>();
   const { room, participants } = useRoom(roomId ?? null);
   const [isStarting, setIsStarting] = useState(false);
@@ -52,6 +52,14 @@ export default function WaitingRoom() {
       setIsStarting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="items-center justify-center flex-1 px-container-spacing bg-dark-bg">
+        <ActivityIndicator size="large" color="#fff" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 p-container-spacing bg-light-bg dark:bg-dark-bg">

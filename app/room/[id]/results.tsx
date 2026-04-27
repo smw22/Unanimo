@@ -56,7 +56,6 @@ export default function Results() {
             .in("proposal_id", proposalIds)
             .eq("vote_type", "yes"); // Only fetch yes votes
           votesData = v || [];
-          console.log("DEBUG: fetched yes votes:", v); // LOG
         }
         setVotes(votesData);
 
@@ -145,10 +144,6 @@ export default function Results() {
         return;
       }
       const userId = (sessionData as any)?.user?.id;
-      console.log("=== TIEBREAKER DEBUG ===");
-      console.log("Current user id:", userId);
-      console.log("Room host id:", room?.host_id);
-      console.log("Match?:", userId === room?.host_id);
 
       if (!userId) {
         console.error("Not authenticated - cannot create tiebreaker");
@@ -171,15 +166,10 @@ export default function Results() {
         return;
       }
 
-      console.log("Calling createTiebreaker with:", {
-        roomId,
-        tiedParticipants,
-      });
       const t = await createTiebreaker(
         roomId as string,
         tiedParticipants as any[],
       );
-      console.log("Tiebreaker created:", t);
 
       router.push({
         pathname: "/room/[id]/tiebreak",
