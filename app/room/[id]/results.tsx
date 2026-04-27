@@ -52,7 +52,7 @@ export default function Results() {
         if (proposalIds.length > 0) {
           const { data: v } = await supabase
             .from("votes")
-            .select("id, proposal_id, participant_id, created_at")
+            .select("id, proposal_id, participant_id, vote_type, created_at")
             .in("proposal_id", proposalIds);
           votesData = v || [];
         }
