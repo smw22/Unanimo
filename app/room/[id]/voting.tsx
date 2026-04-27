@@ -1,8 +1,11 @@
-import NavigationHeader from "@/components/NavigationHeader";
-import { useMemo, useRef, useState } from "react";
+import { useVoting } from "@/hooks/use-voting";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
+  Image,
   PanResponder,
   Pressable,
   Text,
@@ -12,31 +15,71 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 type VoteDirection = "left" | "right" | "skip";
 
-type Suggestion = {
-  id: string;
-  emoji: string;
-  title: string;
-  suggestedBy: string;
-};
-
-const SUGGESTIONS: Suggestion[] = [
-  { id: "1", emoji: "🍕", title: "Pizza place", suggestedBy: "Alex" },
-  { id: "2", emoji: "🍜", title: "Ramen bar", suggestedBy: "Mia" },
-  { id: "3", emoji: "🌮", title: "Taco truck", suggestedBy: "Jonas" },
-  { id: "4", emoji: "🍔", title: "Burger spot", suggestedBy: "Sofia" },
-  { id: "5", emoji: "🥗", title: "Salad studio", suggestedBy: "Noah" },
-];
-
-const PARTICIPANTS = ["A", "M", "J", "S", "N"];
-
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.25;
 const SWIPE_OUT_X = SCREEN_WIDTH * 1.2;
 
+function getInitials(username: string | undefined): string {
+  if (!username) return "?";
+  return username
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .substring(0, 2);
+}
+
+function AvatarDisplay({
+  avatar_url,
+  username,
+  color,
+}: {
+  avatar_url: string | null | undefined;
+  username: string | undefined;
+  color: string | null | undefined;
+}) {
+  if (avatar_url) {
+    return (
+      <Image
+        source={{ uri: avatar_url }}
+        className="w-full h-full rounded-full"
+      />
+    );
+  }
+
+  return (
+    <View
+      className="w-full h-full items-center justify-center rounded-full"
+      style={{ backgroundColor: color ?? "#7b2fff" }}
+    >
+      <Text className="text-xs font-bold text-white">
+        {getInitials(username)}
+      </Text>
+    </View>
+  );
+}
+
 export default function VotingScreen() {
-  const [suggestions, setSuggestions] = useState(SUGGESTIONS);
-  const [votedCount, setVotedCount] = useState(3);
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const roomId = id ?? null;
+
+  const {
+    room,
+    proposals: dbProposals,
+    participants,
+    votedProposalIds,
+    isLoading,
+    error,
+    isSubmittingVote,
+    submitVote,
+    votesTotalCount,
+    finishedVotingCount,
+  } = useVoting(roomId);
+
+  const [proposals, setProposals] = useState<typeof dbProposals>([]);
+  const [votedCount, setVotedCount] = useState(0);
   const [totalSwipes, setTotalSwipes] = useState(0);
+  const [totalVotableProposals, setTotalVotableProposals] = useState(0);
 
   const position = useRef(new Animated.ValueXY()).current;
 
@@ -69,38 +112,57 @@ export default function VotingScreen() {
     [position.x, position.y, rotate],
   );
 
-  const finishSwipe = (direction: VoteDirection) => {
-    setSuggestions((currentSuggestions) => {
-      const [currentSuggestion, ...restSuggestions] = currentSuggestions;
+  // Update proposals list when dbProposals changes
+  useMemo(() => {
+    if (dbProposals.length > 0 && proposals.length === 0) {
+      setProposals(dbProposals);
+    }
+    if (dbProposals.length > 0) {
+      setTotalVotableProposals(dbProposals.length);
+    }
+  }, [dbProposals]);
 
-      if (!currentSuggestion) {
-        return currentSuggestions;
+  const finishSwipe = (
+    direction: VoteDirection,
+    currentProposal: (typeof proposals)[0] | undefined,
+  ) => {
+    setProposals((currentProposals) => {
+      const [proposal, ...restProposals] = currentProposals;
+
+      if (!proposal) {
+        return currentProposals;
       }
 
       if (direction === "skip") {
-        return [...restSuggestions, currentSuggestion];
+        return [...restProposals, proposal];
       }
 
-      return restSuggestions;
+      return restProposals;
     });
 
     setTotalSwipes((prev) => prev + 1);
 
-    if (direction !== "skip") {
-      setVotedCount((prev) => Math.min(prev + 1, 6));
+    if (direction !== "skip" && currentProposal) {
+      // Increment count immediately for responsive UI
+      setVotedCount((prev) => prev + 1);
+      // Submit vote to database
+      submitVote(currentProposal.id);
     }
 
     position.setValue({ x: 0, y: 0 });
   };
 
-  const forceSwipe = (direction: VoteDirection) => {
+  const forceSwipe = (
+    direction: VoteDirection,
+    proposal: (typeof proposals)[0] | undefined,
+  ) => {
     if (direction === "skip") {
       Animated.timing(position, {
         toValue: { x: 0, y: 24 },
         duration: 120,
         useNativeDriver: true,
       }).start(() => {
-        finishSwipe("skip");
+        finishSwipe("skip", proposal);
       });
       return;
     }
@@ -112,7 +174,7 @@ export default function VotingScreen() {
       duration: 220,
       useNativeDriver: true,
     }).start(() => {
-      finishSwipe(direction);
+      finishSwipe(direction, proposal);
     });
   };
 
@@ -137,9 +199,9 @@ export default function VotingScreen() {
       ),
       onPanResponderRelease: (_, gestureState) => {
         if (gestureState.dx > SWIPE_THRESHOLD) {
-          forceSwipe("right");
+          forceSwipe("right", proposals[0]);
         } else if (gestureState.dx < -SWIPE_THRESHOLD) {
-          forceSwipe("left");
+          forceSwipe("left", proposals[0]);
         } else {
           resetPosition();
         }
@@ -147,52 +209,84 @@ export default function VotingScreen() {
     }),
   ).current;
 
-  const activeSuggestion = suggestions[0];
-  const nextSuggestion = suggestions[1];
+  const activeProposal = proposals[0];
+  const nextProposal = proposals[1];
 
-  const cardsFinished = !activeSuggestion;
+  const cardsFinished = !activeProposal;
 
+  // Auto-redirect to results when all participants finish voting
+  useEffect(() => {
+    if (
+      cardsFinished &&
+      finishedVotingCount > 0 &&
+      finishedVotingCount === participants.length &&
+      roomId
+    ) {
+      // All participants finished, redirect to results
+      router.replace({
+        pathname: "/room/[id]/results",
+        params: { id: roomId },
+      });
+    }
+  }, [cardsFinished, finishedVotingCount, participants.length, roomId]);
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg items-center justify-center">
+        <ActivityIndicator size="large" color="#fff" />
+      </SafeAreaView>
+    );
+  }
+
+  if (!room) {
+    return (
+      <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg items-center justify-center">
+        <Text className="text-text-secondary">Room not found</Text>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg">
-      <NavigationHeader title="Friday plans" />
+      <View className="py-4 border-b border-border">
+        <Text className="text-lg font-bold text-white text-center">Voting</Text>
+      </View>
 
       <View className="gap-5 mt-4">
         <View className="items-center gap-3">
           <Text className="px-4 py-1 text-xs rounded-full text-text-secondary bg-card">
-            code: XK92
+            code: {room.code}
           </Text>
           <View className="flex-row items-center justify-between w-full">
             <View className="flex-row items-center">
-              {PARTICIPANTS.map((initial, index) => (
+              {participants.slice(0, 5).map((participant, index) => (
                 <View
-                  key={initial}
-                  className="items-center justify-center w-8 h-8 rounded-full"
+                  key={participant.user_id}
+                  className="items-center justify-center w-8 h-8 rounded-full overflow-hidden border-2 border-dark-bg"
                   style={{
                     marginLeft: index === 0 ? 0 : -10,
-                    backgroundColor: [
-                      "#7b2fff",
-                      "#36c95e",
-                      "#ff6b6b",
-                      "#ffb347",
-                      "#4f91ff",
-                    ][index],
                   }}
                 >
-                  <Text className="text-xs font-bold text-white">
-                    {initial}
-                  </Text>
+                  <AvatarDisplay
+                    avatar_url={participant.profile?.avatar_url}
+                    username={participant.profile?.username}
+                    color={participant.profile?.color}
+                  />
                 </View>
               ))}
 
-              <View className="items-center justify-center h-8 px-2 ml-2 rounded-full bg-card">
-                <Text className="text-xs text-text-secondary">+2</Text>
-              </View>
+              {participants.length > 5 && (
+                <View className="items-center justify-center h-8 px-2 ml-2 rounded-full bg-card">
+                  <Text className="text-xs text-text-secondary">
+                    +{participants.length - 5}
+                  </Text>
+                </View>
+              )}
             </View>
 
             <View className="flex-row items-center gap-2 px-3 py-1 rounded-full bg-card">
               <View className="w-2 h-2 rounded-full bg-success" />
               <Text className="text-xs text-text-secondary">
-                {votedCount} of 6 voted
+                {finishedVotingCount} of {participants.length} finished
               </Text>
             </View>
           </View>
@@ -200,7 +294,13 @@ export default function VotingScreen() {
           <View className="w-full h-1 rounded-full bg-border">
             <View
               className="h-1 rounded-full bg-primary"
-              style={{ width: `${Math.min((votedCount / 6) * 100, 100)}%` }}
+              style={{
+                width: `${Math.min(
+                  (finishedVotingCount / Math.max(1, participants.length)) *
+                    100,
+                  100,
+                )}%`,
+              }}
             />
           </View>
         </View>
@@ -215,10 +315,13 @@ export default function VotingScreen() {
               <Text className="mt-2 text-base text-text-secondary">
                 You reviewed all suggestions.
               </Text>
+              <Text className="mt-6 text-sm text-text-secondary">
+                Waiting for others to finish...
+              </Text>
             </View>
           ) : (
             <>
-              {!!nextSuggestion && (
+              {!!nextProposal && (
                 <View className="absolute inset-0 translate-y-2 border rounded-3xl border-border bg-card" />
               )}
 
@@ -228,14 +331,21 @@ export default function VotingScreen() {
                 style={cardAnimatedStyle}
               >
                 <View className="items-center justify-center flex-1 rounded-3xl bg-card">
-                  <Text className="text-5xl">{activeSuggestion.emoji}</Text>
+                  {/* Proposal Creator Avatars */}
+                  <View className="w-16 h-16 rounded-full items-center justify-center bg-dark-bg border-2 border-primary overflow-hidden">
+                    <AvatarDisplay
+                      avatar_url={activeProposal.profile?.avatar_url}
+                      username={activeProposal.profile?.username}
+                      color={activeProposal.profile?.color}
+                    />
+                  </View>
 
-                  <Text className="mt-6 text-4xl font-bold text-white">
-                    {activeSuggestion.title}
+                  <Text className="mt-6 text-4xl font-bold text-white text-center px-4">
+                    {activeProposal.content}
                   </Text>
 
                   <Text className="mt-2 text-base text-text-secondary">
-                    Suggested by {activeSuggestion.suggestedBy}
+                    Proposed by {activeProposal.profile?.username}
                   </Text>
 
                   <View className="flex-row justify-between w-full px-6 mt-8">
@@ -267,24 +377,31 @@ export default function VotingScreen() {
 
         <View className="items-center gap-2">
           <Text className="text-sm text-text-secondary">
-            {Math.min(totalSwipes + 1, SUGGESTIONS.length)} of{" "}
-            {SUGGESTIONS.length} suggestions
+            {votedCount} of {totalVotableProposals} proposals
           </Text>
 
           <View className="flex-row items-end justify-center gap-6 mt-1">
             <Pressable
-              onPress={() => !cardsFinished && forceSwipe("left")}
-              disabled={cardsFinished}
-              className={`items-center ${cardsFinished ? "opacity-40" : "opacity-100"}`}
+              onPress={() =>
+                !cardsFinished && forceSwipe("left", activeProposal)
+              }
+              disabled={cardsFinished || isSubmittingVote}
+              className={`items-center ${cardsFinished || isSubmittingVote ? "opacity-40" : "opacity-100"}`}
             >
               <View className="items-center justify-center w-16 h-16 border-2 rounded-full border-danger">
-                <Text className="text-2xl">👎</Text>
+                {isSubmittingVote ? (
+                  <ActivityIndicator color="#ff6b6b" size="small" />
+                ) : (
+                  <Text className="text-2xl">👎</Text>
+                )}
               </View>
               <Text className="mt-2 text-xs text-text-secondary">pass</Text>
             </Pressable>
 
             <Pressable
-              onPress={() => !cardsFinished && forceSwipe("skip")}
+              onPress={() =>
+                !cardsFinished && forceSwipe("skip", activeProposal)
+              }
               disabled={cardsFinished}
               className={`items-center ${cardsFinished ? "opacity-40" : "opacity-100"}`}
             >
@@ -295,17 +412,29 @@ export default function VotingScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => !cardsFinished && forceSwipe("right")}
-              disabled={cardsFinished}
-              className={`items-center ${cardsFinished ? "opacity-40" : "opacity-100"}`}
+              onPress={() =>
+                !cardsFinished && forceSwipe("right", activeProposal)
+              }
+              disabled={cardsFinished || isSubmittingVote}
+              className={`items-center ${cardsFinished || isSubmittingVote ? "opacity-40" : "opacity-100"}`}
             >
               <View className="items-center justify-center w-16 h-16 border-2 rounded-full border-success">
-                <Text className="text-2xl">👍</Text>
+                {isSubmittingVote ? (
+                  <ActivityIndicator color="#36c95e" size="small" />
+                ) : (
+                  <Text className="text-2xl">👍</Text>
+                )}
               </View>
               <Text className="mt-2 text-xs text-text-secondary">yes</Text>
             </Pressable>
           </View>
         </View>
+
+        {error && (
+          <Text className="text-sm font-semibold text-danger text-center">
+            {error}
+          </Text>
+        )}
 
         <Text className="text-xs text-center text-text-muted">
           Swipes made: {totalSwipes}
