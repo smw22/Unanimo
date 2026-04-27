@@ -140,7 +140,10 @@ export default function Results() {
   const voteCounts = useMemo(() => {
     const map: Record<string, number> = {};
     votes.forEach((v: any) => {
-      map[v.proposal_id] = (map[v.proposal_id] || 0) + 1;
+      // Only count votes where vote_type is 'yes' (or no vote_type for backwards compat)
+      if (v.vote_type === "yes" || !v.vote_type) {
+        map[v.proposal_id] = (map[v.proposal_id] || 0) + 1;
+      }
     });
     return map;
   }, [votes]);
