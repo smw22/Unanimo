@@ -112,17 +112,21 @@ export default function HistoryIndex() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg">
+    <SafeAreaView className="flex-1 px-container-spacing bg-light-bg dark:bg-dark-bg">
       <View className="py-4 border-b border-border mb-4">
-        <Text className="text-2xl font-bold text-white">History</Text>
-        <Text className="text-sm text-text-secondary mt-1">
+        <Text className="text-2xl font-bold text-dark-text dark:text-white">
+          History
+        </Text>
+        <Text className="text-sm text-text-secondary dark:text-text-secondary mt-1">
           Your past decisions
         </Text>
       </View>
 
       {history.length === 0 ? (
         <View className="flex-1 items-center justify-center">
-          <Text className="text-text-secondary text-lg">No decisions yet</Text>
+          <Text className="text-text-secondary dark:text-text-secondary text-lg">
+            No decisions yet
+          </Text>
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -132,7 +136,7 @@ export default function HistoryIndex() {
 
             return (
               <View key={period.key} className="mb-6">
-                <Text className="text-sm font-semibold text-text-secondary mb-3">
+                <Text className="text-sm font-semibold text-text-secondary dark:text-text-secondary mb-3">
                   {period.label}
                 </Text>
 
@@ -140,7 +144,7 @@ export default function HistoryIndex() {
                   <Pressable
                     key={item.id}
                     onPress={() => router.push(`/history/${item.id}`)}
-                    className="flex-row items-center gap-3 mb-4 p-3 rounded-lg bg-card active:opacity-70"
+                    className="flex-row items-center gap-3 mb-4 p-3 rounded-lg bg-card dark:bg-card active:opacity-70 border border-border dark:border-border"
                   >
                     <AvatarDisplay
                       avatar_url={item.winning_creator.avatar_url}
@@ -149,28 +153,30 @@ export default function HistoryIndex() {
                     />
 
                     <View className="flex-1">
-                      <Text className="text-sm font-semibold text-white">
+                      <Text className="text-sm font-semibold text-dark-text dark:text-white">
                         {item.winning_proposal.content}
                       </Text>
                       <View className="flex-row items-center gap-2 mt-1">
-                        <Text className="text-xs text-text-secondary">
+                        <Text className="text-xs text-text-secondary dark:text-text-secondary">
                           {item.participant_count} members
                         </Text>
-                        <Text className="text-xs text-text-secondary">•</Text>
-                        <Text className="text-xs text-text-secondary">
+                        <Text className="text-xs text-text-secondary dark:text-text-secondary">
+                          •
+                        </Text>
+                        <Text className="text-xs text-text-secondary dark:text-text-secondary">
                           {item.winning_proposal.yes_votes} yes
                         </Text>
                       </View>
                     </View>
 
                     <View className="items-end">
-                      <Text className="text-xs text-text-secondary">
+                      <Text className="text-xs text-text-secondary dark:text-text-secondary">
                         {new Date(item.created_at).toLocaleDateString("en-US", {
                           month: "short",
                           day: "numeric",
                         })}
                       </Text>
-                      <Text className="text-xs text-success font-semibold mt-1">
+                      <Text className="text-xs text-success dark:text-success font-semibold mt-1">
                         {item.winning_creator.username}
                       </Text>
                     </View>

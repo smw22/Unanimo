@@ -71,16 +71,18 @@ export default function RoomResults() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-dark-bg items-center justify-center">
-        <ActivityIndicator size="large" color="#fff" />
+      <SafeAreaView className="flex-1 bg-light-bg dark:bg-dark-bg items-center justify-center">
+        <ActivityIndicator size="large" color="#7B2FFF" />
       </SafeAreaView>
     );
   }
 
   if (error || !data) {
     return (
-      <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg items-center justify-center">
-        <Text className="text-text-secondary">{error ?? "Room not found"}</Text>
+      <SafeAreaView className="flex-1 px-container-spacing bg-light-bg dark:bg-dark-bg items-center justify-center">
+        <Text className="text-text-secondary dark:text-text-secondary">
+          {error ?? "Room not found"}
+        </Text>
       </SafeAreaView>
     );
   }
@@ -89,19 +91,21 @@ export default function RoomResults() {
   const totalVotes = winningProposal.yes_votes + winningProposal.no_votes;
 
   return (
-    <SafeAreaView className="flex-1 bg-dark-bg">
+    <SafeAreaView className="flex-1 bg-light-bg dark:bg-dark-bg">
       <ScrollView className="flex-1">
         {/* Header */}
-        <View className="px-container-spacing pt-4 pb-6 border-b border-border">
+        <View className="px-container-spacing pt-4 pb-6 border-b border-border dark:border-border">
           <Pressable onPress={() => router.back()} className="mb-4">
-            <Text className="text-primary text-sm font-semibold">← back</Text>
+            <Text className="text-primary dark:text-primary text-sm font-semibold">
+              ← back
+            </Text>
           </Pressable>
 
-          <Text className="text-2xl font-bold text-white mb-2">
+          <Text className="text-2xl font-bold text-dark-text dark:text-white mb-2">
             {winningProposal.content}
           </Text>
 
-          <Text className="text-xs text-text-secondary">
+          <Text className="text-xs text-text-secondary dark:text-text-secondary">
             {new Date(data.created_at).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
@@ -112,10 +116,12 @@ export default function RoomResults() {
 
         <View className="px-container-spacing py-6">
           {/* Winner Section */}
-          <View className="mb-6 p-4 border-2 border-primary/50 rounded-2xl bg-card">
+          <View className="mb-6 p-4 border-2 border-primary/50 rounded-2xl bg-card dark:bg-card">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-xs font-bold text-primary">WINNER</Text>
-              <Text className="text-xs text-text-secondary">
+              <Text className="text-xs font-bold text-primary dark:text-primary">
+                WINNER
+              </Text>
+              <Text className="text-xs text-text-secondary dark:text-text-secondary">
                 {winningProposal.yes_votes} out of {totalVotes} voted yes
               </Text>
             </View>
@@ -129,10 +135,13 @@ export default function RoomResults() {
               />
 
               <View className="flex-1">
-                <Text className="text-sm font-semibold text-white">
+                <Text className="text-xs text-text-secondary dark:text-text-secondary mb-1">
+                  Proposed by {winningProposal.creator.username}
+                </Text>
+                <Text className="text-sm font-semibold text-dark-text dark:text-white">
                   {winningProposal.content}
                 </Text>
-                <Text className="text-xs text-text-secondary mt-1">
+                <Text className="text-xs text-text-secondary dark:text-text-secondary mt-1">
                   {winningProposal.yes_votes} yes • {winningProposal.no_votes}{" "}
                   no
                 </Text>
@@ -141,7 +150,7 @@ export default function RoomResults() {
           </View>
 
           {/* All Options */}
-          <Text className="text-xs font-bold text-text-secondary mb-3">
+          <Text className="text-xs font-bold text-text-secondary dark:text-text-secondary mb-3">
             ALL OPTIONS ↓
           </Text>
 
@@ -149,7 +158,7 @@ export default function RoomResults() {
             {data.proposals.map((proposal) => (
               <View
                 key={proposal.id}
-                className="p-3 rounded-lg bg-card border border-border"
+                className="p-3 rounded-lg bg-card dark:bg-card border border-border dark:border-border"
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1 flex-row items-center gap-2">
@@ -159,16 +168,21 @@ export default function RoomResults() {
                       color={proposal.creator.color}
                       size="sm"
                     />
-                    <Text className="text-sm font-medium text-white flex-1">
-                      {proposal.content}
-                    </Text>
+                    <View className="flex-1">
+                      <Text className="text-xs text-text-secondary dark:text-text-secondary">
+                        {proposal.creator.username}
+                      </Text>
+                      <Text className="text-sm font-medium text-dark-text dark:text-white">
+                        {proposal.content}
+                      </Text>
+                    </View>
                   </View>
 
                   <View className="items-end">
-                    <Text className="text-xs text-success font-semibold">
+                    <Text className="text-xs text-success dark:text-success font-semibold">
                       {proposal.yes_votes} yes
                     </Text>
-                    <Text className="text-xs text-text-secondary">
+                    <Text className="text-xs text-text-secondary dark:text-text-secondary">
                       {proposal.no_votes} no
                     </Text>
                   </View>
