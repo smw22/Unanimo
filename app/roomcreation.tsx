@@ -56,14 +56,14 @@ export default function RoomCreation() {
             placeholderTextColor="#8d8d8d"
             value={roomName}
             onChangeText={setRoomName}
-            className="w-full p-4 font-bold text-left text-gray-900 dark:text-white border-2 rounded-2xl bg-gray-100 dark:bg-[#0B0B0D] border-gray-200 dark:border-[#1F1F1F]"
+            className="w-full p-4 font-bold text-left text-gray-900 dark:text-white border rounded-2xl bg-gray-100 dark:bg-[#0B0B0D] border-gray-200 dark:border-[#1F1F1F]"
           />
         </View>
 
         <View className="items-start gap-2">
           <Label>OPTIONS</Label>
 
-          <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
+          <View className="flex-row justify-between w-full p-4 border rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
             <View className="flex-col flex-1">
               <Text className="text-sm font-bold text-black dark:text-white">
                 Anonymous voting
@@ -81,7 +81,7 @@ export default function RoomCreation() {
             />
           </View>
 
-          <View className="flex-row justify-between w-full p-4 border-2 rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
+          <View className="flex-row justify-between w-full p-4 border rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
             <View className="flex-col flex-1">
               <Text className="text-sm font-bold text-black dark:text-white">
                 Time limited
@@ -102,7 +102,7 @@ export default function RoomCreation() {
             </View>
           </View>
 
-          <View className="flex-row items-center justify-between w-full p-4 border-2 rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
+          <View className="flex-row items-center justify-between w-full p-4 border rounded-2xl bg-input-bg dark:bg-input-bg-dark border-input-border dark:border-input-border-dark">
             <View className="flex-col flex-1">
               <Text className="text-sm font-bold text-black dark:text-white">
                 Max participants

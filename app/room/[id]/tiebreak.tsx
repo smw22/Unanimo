@@ -169,6 +169,15 @@ export default function TieBreak() {
     }
   };
 
+  const getWinnerCenterAngle = (index: number, count: number) => {
+    if (count === 2) {
+      return index === 0 ? 180 : 0;
+    }
+
+    const segment = 360 / count;
+    return (index * segment + segment / 2) % 360;
+  };
+
   const handleSpin = async () => {
     if (!isHost || spinning || entrants.length < 2 || !tiebreakerId) return;
 
@@ -177,10 +186,12 @@ export default function TieBreak() {
     const winnerIndex = Math.floor(Math.random() * entrants.length);
     const winner = entrants[winnerIndex];
 
-    const centerOfWinner = winnerIndex * segmentAngle + segmentAngle / 2;
-    const pointerAtTop = 0;
+    const pointerAngle = 270;
+    const winnerCenter = getWinnerCenterAngle(winnerIndex, entrants.length);
+
     const extraTurns = 6 * 360;
-    const stopAt = extraTurns + (360 - (centerOfWinner - pointerAtTop));
+    const delta = (pointerAngle - winnerCenter + 360) % 360;
+    const stopAt = extraTurns + delta;
 
     rotation.setValue(0);
 
@@ -229,13 +240,10 @@ export default function TieBreak() {
           >
             {entrants.length === 2 ? (
               <>
-                {/* Left half */}
                 <View className="absolute top-0 left-0 w-1/2 h-full bg-[#39C060]" />
 
-                {/* Right half */}
                 <View className="absolute top-0 right-0 w-1/2 h-full bg-[#FF3B3B]" />
 
-                {/* Center divider */}
                 <View
                   style={{
                     position: "absolute",
@@ -247,7 +255,6 @@ export default function TieBreak() {
                   }}
                 />
 
-                {/* Left label */}
                 <Text
                   style={{
                     position: "absolute",

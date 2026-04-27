@@ -35,7 +35,7 @@ export default function QuantityPicker({
 
   return (
     <View
-      className={`flex-row  items-center py-1 px-4 border-2 rounded-full bg-border-bg border-input-border ${className}`}
+      className={`flex-row items-center py-1 px-4 border rounded-full bg-border-bg border-input-border-dark ${className}`}
     >
       <Pressable
         onPress={decrease}
