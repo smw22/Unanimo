@@ -56,12 +56,7 @@ export default function TieBreak() {
               if (mounted) setTiebreaker(payload.new);
             },
           )
-          .subscribe((status: string) => {
-            console.log("Subscription status:", status);
-            if (status === "SUBSCRIBED") {
-              console.log("✅ Realtime connected");
-            }
-          });
+          .subscribe();
       } catch (e) {
         console.error("❌ Realtime setup failed:", e);
         // Fallback: just use polling
@@ -150,7 +145,16 @@ export default function TieBreak() {
       </View>
 
       <Pressable
-        onPress={() => router.replace(`/room/${roomId}/results`)}
+        onPress={() => {
+          if (!roomId) {
+            console.error("Room ID not available");
+            return;
+          }
+          router.replace({
+            pathname: "/room/[id]/results",
+            params: { id: roomId },
+          });
+        }}
         className="items-center justify-center w-full h-12 bg-gray-800 rounded-full"
       >
         <Text className="text-white">Back to results</Text>
