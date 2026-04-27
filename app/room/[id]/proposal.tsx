@@ -55,7 +55,7 @@ export default function ProposalScreen() {
                 onChangeText={setContent}
                 placeholder="Go to the cinema!!"
                 placeholderTextColor="#8d8d8d"
-                className="w-full px-4 py-3 text-base border text-dark-text dark:text-text-primary rounded-2xl bg-light-bg dark:bg-dark-bg"
+                className="w-full px-4 py-3 border dark:border-input-border border-input-border-dark text-dark-text dark:text-text-primary rounded-2xl bg-light-bg dark:bg-dark-bg"
               />
 
               {!!error && (
@@ -83,7 +83,7 @@ export default function ProposalScreen() {
           </>
         ) : (
           <View className="items-center justify-center flex-1 gap-3">
-            <Text className="text-base font-bold text-white">
+            <Text className="text-base font-bold text-dark-text dark:text-text-primary">
               Waiting for all proposals...
             </Text>
             <Text className="text-sm font-semibold text-primary">
