@@ -50,7 +50,7 @@ export default function TieBreak() {
           filter: `id=eq.${tiebreakerId}`,
         },
         (payload) => {
-          setTiebreaker(payload.new);
+          if (mounted) setTiebreaker(payload.new);
         },
       )
       .subscribe();

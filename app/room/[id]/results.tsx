@@ -185,7 +185,6 @@ export default function Results() {
     if (!roomId || !tieExists) return;
 
     try {
-      // ensure we have an authenticated user and they are the host
       const { data: sessionData, error: sessionError } =
         await supabase.auth.getUser();
       if (sessionError) {
@@ -193,7 +192,10 @@ export default function Results() {
         return;
       }
       const userId = (sessionData as any)?.user?.id;
-      console.log("Current user id:", userId, "room host:", room?.host_id);
+      console.log("=== TIEBREAKER DEBUG ===");
+      console.log("Current user id:", userId);
+      console.log("Room host id:", room?.host_id);
+      console.log("Match?:", userId === room?.host_id);
 
       if (!userId) {
         console.error("Not authenticated - cannot create tiebreaker");
@@ -204,7 +206,7 @@ export default function Results() {
         return;
       }
 
-      // prepare tied participants -> ensure participant ids exist
+      // prepare tied participants...
       const tiedParticipants = tiedProposals.map((p) => {
         const part = participants.find((pt: any) => pt.id === p.participant_id);
         return { participant_id: part?.id, proposal_id: p.id };
@@ -216,10 +218,16 @@ export default function Results() {
         return;
       }
 
+      console.log("Calling createTiebreaker with:", {
+        roomId,
+        tiedParticipants,
+      });
       const t = await createTiebreaker(
         roomId as string,
         tiedParticipants as any[],
       );
+      console.log("Tiebreaker created:", t);
+
       router.push({
         pathname: "/room/[id]/tiebreak",
         params: { id: roomId, tiebreakerId: t.id },
@@ -235,6 +243,27 @@ export default function Results() {
       message: `We picked "${winner.content}" in ${room?.title ?? "our room"}! 🎉`,
     });
   };
+
+  useEffect(() => {
+    if (!roomId || !winner || tiedProposals.length !== 1) return; // only set if single winner, not tie
+
+    const setWinnerInDB = async () => {
+      try {
+        const { error } = await supabase
+          .from("rooms")
+          .update({ winner_proposal_id: winner.id })
+          .eq("id", roomId);
+
+        if (error) {
+          console.error("Failed to set winner in DB:", error);
+        }
+      } catch (e) {
+        console.error("Error setting winner:", e);
+      }
+    };
+
+    setWinnerInDB();
+  }, [roomId, winner, tiedProposals.length]);
 
   if (loading) {
     return (
@@ -332,7 +361,7 @@ export default function Results() {
                   style={{ backgroundColor: "#3B1F6A" }}
                 >
                   <Text className="text-sm font-medium text-white">
-                    share result
+                    Share result
                   </Text>
                 </Pressable>
               </View>
