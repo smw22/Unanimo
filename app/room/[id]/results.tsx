@@ -53,8 +53,10 @@ export default function Results() {
           const { data: v } = await supabase
             .from("votes")
             .select("id, proposal_id, participant_id, vote_type, created_at")
-            .in("proposal_id", proposalIds);
+            .in("proposal_id", proposalIds)
+            .eq("vote_type", "yes"); // Only fetch yes votes
           votesData = v || [];
+          console.log("DEBUG: fetched yes votes:", v); // LOG
         }
         setVotes(votesData);
 
@@ -148,7 +150,9 @@ export default function Results() {
     return map;
   }, [votes]);
 
-  const totalVotes = votes.length;
+  const totalVotes = votes.filter(
+    (v: any) => v.vote_type === "yes" || !v.vote_type,
+  ).length;
 
   const sortedProposals = useMemo(() => {
     return [...proposals].sort(
