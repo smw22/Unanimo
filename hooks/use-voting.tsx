@@ -309,6 +309,23 @@ export function useVoting(roomId: string | null) {
     }
   };
 
+  const updateRoomStatusToResults = async () => {
+    if (!roomId) return false;
+
+    try {
+      const { error: updateError } = await supabase
+        .from("rooms")
+        .update({ status: "results" })
+        .eq("id", roomId);
+
+      if (updateError) throw updateError;
+      return true;
+    } catch (err: any) {
+      console.error("Error updating room status:", err);
+      return false;
+    }
+  };
+
   const votesTotalCount = useMemo(() => {
     return proposals.reduce((sum, p) => sum + (p.vote_count ?? 0), 0);
   }, [proposals]);
@@ -329,5 +346,6 @@ export function useVoting(roomId: string | null) {
     votesTotalCount,
     expectedTotalVotes,
     finishedVotingCount,
+    updateRoomStatusToResults,
   };
 }

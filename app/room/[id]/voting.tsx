@@ -74,6 +74,7 @@ export default function VotingScreen() {
     submitVote,
     votesTotalCount,
     finishedVotingCount,
+    updateRoomStatusToResults,
   } = useVoting(roomId);
 
   const [proposals, setProposals] = useState<typeof dbProposals>([]);
@@ -222,13 +223,23 @@ export default function VotingScreen() {
       finishedVotingCount === participants.length &&
       roomId
     ) {
-      // All participants finished, redirect to results
-      router.replace({
-        pathname: "/room/[id]/results",
-        params: { id: roomId },
-      });
+      // All participants finished, update room status and redirect
+      const transitionToResults = async () => {
+        await updateRoomStatusToResults();
+        router.replace({
+          pathname: "/room/[id]/results",
+          params: { id: roomId },
+        });
+      };
+      transitionToResults();
     }
-  }, [cardsFinished, finishedVotingCount, participants.length, roomId]);
+  }, [
+    cardsFinished,
+    finishedVotingCount,
+    participants.length,
+    roomId,
+    updateRoomStatusToResults,
+  ]);
 
   if (isLoading) {
     return (
