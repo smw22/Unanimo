@@ -1,6 +1,6 @@
 import { useVoting } from "@/hooks/use-voting";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -67,6 +67,7 @@ export default function VotingScreen() {
     room,
     proposals: dbProposals,
     participants,
+    participantId,
     votedProposalIds,
     isLoading,
     error,
@@ -83,6 +84,10 @@ export default function VotingScreen() {
   const [totalVotableProposals, setTotalVotableProposals] = useState(0);
 
   const position = useRef(new Animated.ValueXY()).current;
+  // Keep a ref to the active proposal so panResponder (created once) always reads the latest value
+  const activeProposalRef = useRef<(typeof dbProposals)[0] | undefined>(
+    undefined,
+  );
 
   const rotate = position.x.interpolate({
     inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
@@ -123,61 +128,76 @@ export default function VotingScreen() {
     }
   }, [dbProposals]);
 
-  const finishSwipe = (
-    direction: VoteDirection,
-    currentProposal: (typeof proposals)[0] | undefined,
-  ) => {
-    setProposals((currentProposals) => {
-      const [proposal, ...restProposals] = currentProposals;
-
-      if (!proposal) {
-        return currentProposals;
+  // Wrap finishSwipe in useCallback to prevent stale closures
+  const finishSwipe = useCallback(
+    async (
+      direction: VoteDirection,
+      currentProposal: (typeof proposals)[0] | undefined,
+    ) => {
+      // Guard: Check participantId is set before allowing vote submission
+      if (direction !== "skip" && currentProposal && !participantId) {
+        return;
       }
 
+      setProposals((currentProposals) => {
+        const [proposal, ...restProposals] = currentProposals;
+
+        if (!proposal) {
+          return currentProposals;
+        }
+
+        if (direction === "skip") {
+          return [...restProposals, proposal];
+        }
+
+        return restProposals;
+      });
+
+      setTotalSwipes((prev) => prev + 1);
+
+      if (direction !== "skip" && currentProposal) {
+        // Submit vote to database and wait for it
+        const success = await submitVote(currentProposal.id);
+        if (success) {
+          // Increment count only after successful submission
+          setVotedCount((prev) => prev + 1);
+        } else {
+          // Put the proposal back if vote failed
+          setProposals((prev) => [currentProposal, ...prev]);
+        }
+      }
+
+      position.setValue({ x: 0, y: 0 });
+    },
+    [participantId, submitVote, position],
+  );
+
+  // Wrap forceSwipe in useCallback to prevent stale closures
+  const forceSwipe = useCallback(
+    (direction: VoteDirection, proposal: (typeof proposals)[0] | undefined) => {
       if (direction === "skip") {
-        return [...restProposals, proposal];
+        Animated.timing(position, {
+          toValue: { x: 0, y: 24 },
+          duration: 120,
+          useNativeDriver: true,
+        }).start(() => {
+          finishSwipe("skip", proposal);
+        });
+        return;
       }
 
-      return restProposals;
-    });
+      const x = direction === "right" ? SWIPE_OUT_X : -SWIPE_OUT_X;
 
-    setTotalSwipes((prev) => prev + 1);
-
-    if (direction !== "skip" && currentProposal) {
-      // Increment count immediately for responsive UI
-      setVotedCount((prev) => prev + 1);
-      // Submit vote to database
-      submitVote(currentProposal.id);
-    }
-
-    position.setValue({ x: 0, y: 0 });
-  };
-
-  const forceSwipe = (
-    direction: VoteDirection,
-    proposal: (typeof proposals)[0] | undefined,
-  ) => {
-    if (direction === "skip") {
       Animated.timing(position, {
-        toValue: { x: 0, y: 24 },
-        duration: 120,
+        toValue: { x, y: 0 },
+        duration: 220,
         useNativeDriver: true,
       }).start(() => {
-        finishSwipe("skip", proposal);
+        finishSwipe(direction, proposal);
       });
-      return;
-    }
-
-    const x = direction === "right" ? SWIPE_OUT_X : -SWIPE_OUT_X;
-
-    Animated.timing(position, {
-      toValue: { x, y: 0 },
-      duration: 220,
-      useNativeDriver: true,
-    }).start(() => {
-      finishSwipe(direction, proposal);
-    });
-  };
+    },
+    [finishSwipe, position],
+  );
 
   const resetPosition = () => {
     Animated.spring(position, {
@@ -200,18 +220,47 @@ export default function VotingScreen() {
       ),
       onPanResponderRelease: (_, gestureState) => {
         if (gestureState.dx > SWIPE_THRESHOLD) {
-          forceSwipe("right", proposals[0]);
+          forceSwipe("right", activeProposalRef.current);
         } else if (gestureState.dx < -SWIPE_THRESHOLD) {
-          forceSwipe("left", proposals[0]);
+          forceSwipe("left", activeProposalRef.current);
         } else {
           resetPosition();
         }
       },
     }),
-  ).current;
+  );
+
+  // Update panResponder whenever forceSwipe or resetPosition changes to prevent stale closures
+  useEffect(() => {
+    panResponder.current = PanResponder.create({
+      onMoveShouldSetPanResponder: (_, gestureState) => {
+        return Math.abs(gestureState.dx) > 6 || Math.abs(gestureState.dy) > 6;
+      },
+      onPanResponderMove: Animated.event(
+        [null, { dx: position.x, dy: position.y }],
+        {
+          useNativeDriver: false,
+        },
+      ),
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dx > SWIPE_THRESHOLD) {
+          forceSwipe("right", activeProposalRef.current);
+        } else if (gestureState.dx < -SWIPE_THRESHOLD) {
+          forceSwipe("left", activeProposalRef.current);
+        } else {
+          resetPosition();
+        }
+      },
+    });
+  }, [forceSwipe, resetPosition, position]);
 
   const activeProposal = proposals[0];
   const nextProposal = proposals[1];
+
+  // Keep ref in sync so panResponder always has the latest active proposal
+  useEffect(() => {
+    activeProposalRef.current = activeProposal;
+  }, [activeProposal]);
 
   const cardsFinished = !activeProposal;
 
@@ -256,6 +305,18 @@ export default function VotingScreen() {
       </SafeAreaView>
     );
   }
+
+  if (!participantId) {
+    return (
+      <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg items-center justify-center">
+        <Text className="text-center text-text-secondary mb-4">
+          {error || "Loading your participant info..."}
+        </Text>
+        <ActivityIndicator size="large" color="#fff" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView className="flex-1 px-container-spacing bg-dark-bg">
       <View className="py-4 border-b border-border">
@@ -337,7 +398,7 @@ export default function VotingScreen() {
               )}
 
               <Animated.View
-                {...panResponder.panHandlers}
+                {...panResponder.current.panHandlers}
                 className="absolute inset-0 p-5 border rounded-3xl border-primary"
                 style={cardAnimatedStyle}
               >

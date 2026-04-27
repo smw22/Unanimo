@@ -35,24 +35,59 @@ export function useVoting(roomId: string | null) {
     [claims?.id, claims?.sub, profile?.id],
   );
 
+  console.log(
+    `[HOOK] Render - userId: ${userId}, participantId: ${participantId}, roomId: ${roomId}`,
+  );
+  console.log(
+    `[HOOK] Auth context - profile.id: ${profile?.id}, claims.id: ${claims?.id}, claims.sub: ${claims?.sub}`,
+  );
+
   // Get current participant ID
   useEffect(() => {
-    if (!roomId || !userId) return;
+    if (!roomId || !userId) {
+      console.log(
+        `[HOOK] Skipping participant fetch - roomId: ${roomId}, userId: ${userId}`,
+      );
+      setParticipantId(null);
+      return;
+    }
 
     const fetchParticipant = async () => {
-      const { data, error: participantError } = await supabase
-        .from("participants")
-        .select("id")
-        .eq("room_id", roomId)
-        .eq("user_id", userId)
-        .maybeSingle();
+      try {
+        console.log(
+          `[HOOK] Fetching participant for userId: ${userId}, roomId: ${roomId}`,
+        );
+        const { data, error: participantError } = await supabase
+          .from("participants")
+          .select("id")
+          .eq("room_id", roomId)
+          .eq("user_id", userId)
+          .maybeSingle();
 
-      if (participantError) {
-        setError(participantError.message);
-        return;
+        if (participantError) {
+          console.error(
+            `[HOOK ERROR] Failed to fetch participant:`,
+            participantError,
+          );
+          setError(participantError.message);
+          setParticipantId(null);
+          return;
+        }
+
+        if (!data) {
+          console.warn(
+            `[HOOK WARNING] No participant found for userId: ${userId}, roomId: ${roomId}`,
+          );
+          setParticipantId(null);
+          return;
+        }
+
+        console.log(`[HOOK] Successfully set participantId to:`, data.id);
+        setParticipantId(data.id);
+      } catch (err) {
+        console.error(`[HOOK ERROR] Exception in fetchParticipant:`, err);
+        setParticipantId(null);
       }
-
-      setParticipantId(data?.id ?? null);
     };
 
     fetchParticipant();
@@ -221,6 +256,10 @@ export function useVoting(roomId: string | null) {
 
           if (!allProposals || allProposals.length === 0) return;
 
+          console.log(
+            `[PROGRESS] Checking ${participantsData.length} participants with ${allProposals.length} total proposals`,
+          );
+
           // Count participants who have voted on all proposals except their own
           const finishedCount = await Promise.all(
             participantsData.map(async (participant) => {
@@ -236,11 +275,18 @@ export function useVoting(roomId: string | null) {
                 .eq("participant_id", participant.id);
 
               if (countError) return false;
-              return (count ?? 0) >= votableForParticipant;
+              const hasFinished = (count ?? 0) >= votableForParticipant;
+              console.log(
+                `[PROGRESS] Participant ${participant.id}: ${count ?? 0}/${votableForParticipant} votes`,
+              );
+              return hasFinished;
             }),
           );
 
           const finished = finishedCount.filter((v) => v).length;
+          console.log(
+            `[PROGRESS] Finished voting: ${finished} of ${participantsData.length}`,
+          );
           setFinishedVotingCount(finished);
         }
       } catch (err) {
@@ -278,6 +324,7 @@ export function useVoting(roomId: string | null) {
   const submitVote = async (proposalId: string) => {
     if (!participantId) {
       setError("You are not part of this room.");
+      console.error(`[VOTE ERROR] No participant ID`);
       return false;
     }
 
@@ -285,6 +332,9 @@ export function useVoting(roomId: string | null) {
     setError(null);
 
     try {
+      console.log(
+        `[DB] Inserting vote for proposal ${proposalId} by participant ${participantId}`,
+      );
       const { error: insertError } = await supabase.from("votes").insert({
         proposal_id: proposalId,
         participant_id: participantId,
@@ -293,6 +343,9 @@ export function useVoting(roomId: string | null) {
       if (insertError) {
         if (insertError.message.toLowerCase().includes("duplicate key")) {
           setError("You already voted for this proposal.");
+          console.warn(
+            `[VOTE ERROR] Duplicate vote attempt for proposal ${proposalId}`,
+          );
           return false;
         }
         throw insertError;
@@ -300,8 +353,10 @@ export function useVoting(roomId: string | null) {
 
       // Update local state
       setVotedProposalIds((prev) => new Set([...prev, proposalId]));
+      console.log(`[DB] Vote inserted successfully for proposal ${proposalId}`);
       return true;
     } catch (err: any) {
+      console.error(`[DB ERROR] Vote submission failed:`, err);
       setError(err?.message ?? "Failed to submit vote.");
       return false;
     } finally {
@@ -338,6 +393,7 @@ export function useVoting(roomId: string | null) {
     room,
     proposals: votableProposals,
     participants,
+    participantId,
     votedProposalIds,
     isLoading,
     error,

@@ -39,10 +39,6 @@ function RootNavigator() {
       </Stack.Protected>
 
       <Stack.Protected guard={isLoggedIn}>
-        <Stack.Screen name="waitingroom" options={{ headerShown: false }} />
-      </Stack.Protected>
-
-      <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="room" options={{ headerShown: false }} />
       </Stack.Protected>
 
