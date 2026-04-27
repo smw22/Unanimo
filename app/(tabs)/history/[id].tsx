@@ -94,7 +94,7 @@ export default function RoomResults() {
     <SafeAreaView className="flex-1 bg-light-bg dark:bg-dark-bg">
       <ScrollView className="flex-1">
         {/* Header */}
-        <View className="px-container-spacing pt-4 pb-6 border-b border-border dark:border-border">
+        <View className="px-container-spacing pt-4 pb-6 border-b border-input-border dark:border-border">
           <Pressable onPress={() => router.back()} className="mb-4">
             <Text className="text-primary dark:text-primary text-sm font-semibold">
               ← back
@@ -116,7 +116,7 @@ export default function RoomResults() {
 
         <View className="px-container-spacing py-6">
           {/* Winner Section */}
-          <View className="mb-6 p-4 border-2 border-primary/50 rounded-2xl bg-card dark:bg-card">
+          <View className="mb-6 p-4 border-2 border-primary/50 rounded-2xl bg-input-bg dark:bg-card">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-xs font-bold text-primary dark:text-primary">
                 WINNER
@@ -158,7 +158,7 @@ export default function RoomResults() {
             {data.proposals.map((proposal) => (
               <View
                 key={proposal.id}
-                className="p-3 rounded-lg bg-card dark:bg-card border border-border dark:border-border"
+                className="p-3 rounded-lg bg-input-bg dark:bg-card border border-input-border dark:border-border"
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1 flex-row items-center gap-2">

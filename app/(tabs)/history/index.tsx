@@ -113,7 +113,7 @@ export default function HistoryIndex() {
 
   return (
     <SafeAreaView className="flex-1 px-container-spacing bg-light-bg dark:bg-dark-bg">
-      <View className="py-4 border-b border-border mb-4">
+      <View className="py-4 border-b border-input-border dark:border-border mb-4">
         <Text className="text-2xl font-bold text-dark-text dark:text-white">
           History
         </Text>
@@ -144,7 +144,7 @@ export default function HistoryIndex() {
                   <Pressable
                     key={item.id}
                     onPress={() => router.push(`/history/${item.id}`)}
-                    className="flex-row items-center gap-3 mb-4 p-3 rounded-lg bg-card dark:bg-card active:opacity-70 border border-border dark:border-border"
+                    className="flex-row items-center gap-3 mb-4 p-3 rounded-lg bg-input-bg dark:bg-card active:opacity-70 border border-input-border dark:border-border"
                   >
                     <AvatarDisplay
                       avatar_url={item.winning_creator.avatar_url}

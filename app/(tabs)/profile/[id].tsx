@@ -202,7 +202,9 @@ export default function Profile() {
     <SafeAreaView className="flex-1 p-container-spacing pt-top-spacing bg-light-bg dark:bg-dark-bg">
       <ScrollView>
         <View className="pb-4 justify-center items-center">
-          <Text className="text-2xl font-bold text-white">Profile</Text>
+          <Text className="text-2xl font-bold text-black dark:text-white">
+            Profile
+          </Text>
         </View>
 
         {isLoading && <ActivityIndicator size="large" color="#7B2FFF" />}
