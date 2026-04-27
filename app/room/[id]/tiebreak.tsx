@@ -40,9 +40,9 @@ export default function TieBreak() {
 
     fetchRow();
 
-    // Build channel with .on() BEFORE .subscribe()
+    // Build channel with UNIQUE name to avoid conflicts
     const channel = supabase
-      .channel(`tiebreaker:${tiebreakerId}`)
+      .channel(`tiebreak-screen:${tiebreakerId}`)
       .on(
         "postgres_changes",
         {
