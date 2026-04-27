@@ -1,147 +1,21 @@
-// filepath: app/room/[id]/results.tsx
+import AvatarDisplay from "@/components/AvatarDisplay";
+import { CONFETTI_DOTS, ConfettiDot } from "@/components/ConfettiDot";
 import { NavigationButton } from "@/components/NavigationButton";
+import VoteBar from "@/components/VoteBar";
 import { createTiebreaker } from "@/hooks/create-tiebreaker";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { supabase } from "@/lib/supabase";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Animated,
   FlatList,
-  Image,
   Pressable,
   Share,
   Text,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-// Simple emoji map for proposals — extend as needed
-const EMOJI_LIST = ["🍕", "🍣", "🌮", "🍔", "🍜", "🥗", "🍱", "🌯"];
-
-function getEmoji(index: number) {
-  return EMOJI_LIST[index % EMOJI_LIST.length];
-}
-
-// Confetti dot component
-function ConfettiDot({ color, style }: { color: string; style?: object }) {
-  return (
-    <View
-      style={[
-        {
-          position: "absolute",
-          width: 10,
-          height: 10,
-          borderRadius: 2,
-          backgroundColor: color,
-          transform: [{ rotate: "30deg" }],
-        },
-        style,
-      ]}
-    />
-  );
-}
-
-const CONFETTI_DOTS = [
-  { color: "#FF6B6B", top: 10, left: 30 },
-  { color: "#4CAF50", top: 20, left: 90 },
-  { color: "#FF9800", top: 8, left: 160 },
-  { color: "#9C27B0", top: 25, left: 220 },
-  { color: "#2196F3", top: 12, left: 280 },
-  { color: "#FF6B6B", top: 30, right: 60 },
-  { color: "#4CAF50", top: 15, right: 20 },
-  { color: "#FF9800", top: 5, right: 110 },
-];
-
-// Animated vote bar
-function VoteBar({
-  count,
-  max,
-  isWinner,
-}: {
-  count: number;
-  max: number;
-  isWinner: boolean;
-}) {
-  const anim = useRef(new Animated.Value(0)).current;
-  const pct = max > 0 ? count / max : 0;
-
-  useEffect(() => {
-    Animated.timing(anim, {
-      toValue: pct,
-      duration: 700,
-      delay: 200,
-      useNativeDriver: false,
-    }).start();
-  }, [pct]);
-
-  return (
-    <View className="h-1.5 bg-gray-700 rounded-full mt-2 overflow-hidden">
-      <Animated.View
-        style={{
-          height: "100%",
-          borderRadius: 999,
-          backgroundColor: isWinner ? "#8B5CF6" : "#4B5563",
-          width: anim.interpolate({
-            inputRange: [0, 1],
-            outputRange: ["0%", "100%"],
-          }),
-        }}
-      />
-    </View>
-  );
-}
-
-// get initials helper (same as voting.tsx)
-function getInitials(username: string | undefined): string {
-  if (!username) return "?";
-  return username
-    .split(" ")
-    .map((word) => word[0])
-    .join("")
-    .toUpperCase()
-    .substring(0, 2);
-}
-
-// AvatarDisplay copied from voting.tsx (renders avatar or initials in colored circle)
-function AvatarDisplay({
-  avatar_url,
-  username,
-  color,
-  size = 40,
-}: {
-  avatar_url?: string | null;
-  username?: string | undefined;
-  color?: string | null | undefined;
-  size?: number;
-}) {
-  if (avatar_url) {
-    return (
-      <Image
-        source={{ uri: avatar_url }}
-        style={{ width: size, height: size, borderRadius: size / 2 }}
-      />
-    );
-  }
-
-  return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: color ?? "#7b2fff",
-      }}
-    >
-      <Text className="text-xs font-bold text-white">
-        {getInitials(username)}
-      </Text>
-    </View>
-  );
-}
 
 export default function Results() {
   const { id: roomId } = useLocalSearchParams<{ id?: string }>();
