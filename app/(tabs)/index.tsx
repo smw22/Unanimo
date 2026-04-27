@@ -51,11 +51,6 @@ export default function Home() {
           variant="secondary"
           href="/joinroom"
         />
-        <NavigationButton
-          label="Voting page (testing)"
-          variant="secondary"
-          href="/voting"
-        />
       </View>
     </SafeAreaView>
   );
