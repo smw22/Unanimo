@@ -47,7 +47,7 @@ export default function AvatarImageSection({
           ) : (
             <Ionicons name="cloud-upload" size={18} color="#fff" />
           )}
-          <Text className="font-semibold text-dark-text dark:text-text-primary">
+          <Text className="font-semibold text-white">
             {isUploading ? "Uploading..." : "Upload Photo"}
           </Text>
         </Pressable>
