@@ -321,7 +321,10 @@ export function useVoting(roomId: string | null) {
     };
   }, [roomId, votableProposals.length]);
 
-  const submitVote = async (proposalId: string) => {
+  const submitVote = async (
+    proposalId: string,
+    voteType: "yes" | "no" = "yes",
+  ) => {
     if (!participantId) {
       setError("You are not part of this room.");
       console.error(`[VOTE ERROR] No participant ID`);
@@ -333,11 +336,12 @@ export function useVoting(roomId: string | null) {
 
     try {
       console.log(
-        `[DB] Inserting vote for proposal ${proposalId} by participant ${participantId}`,
+        `[DB] Inserting ${voteType} vote for proposal ${proposalId} by participant ${participantId}`,
       );
       const { error: insertError } = await supabase.from("votes").insert({
         proposal_id: proposalId,
         participant_id: participantId,
+        vote_type: voteType,
       });
 
       if (insertError) {

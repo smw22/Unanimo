@@ -156,8 +156,9 @@ export default function VotingScreen() {
       setTotalSwipes((prev) => prev + 1);
 
       if (direction !== "skip" && currentProposal) {
-        // Submit vote to database and wait for it
-        const success = await submitVote(currentProposal.id);
+        // Submit vote to database with vote type (left=no, right=yes)
+        const voteType = direction === "right" ? "yes" : "no";
+        const success = await submitVote(currentProposal.id, voteType);
         if (success) {
           // Increment count only after successful submission
           setVotedCount((prev) => prev + 1);
