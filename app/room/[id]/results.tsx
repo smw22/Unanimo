@@ -43,14 +43,17 @@ export default function Results() {
           .order("created_at", { ascending: false });
         setProposals(proposalsData || []);
 
-        const { data: votesData } = await supabase
-          .from("votes")
-          .select("id, proposal_id, participant_id, created_at")
-          .in(
-            "proposal_id",
-            (proposalsData || []).map((p: any) => p.id),
-          );
-        setVotes(votesData || []);
+        // Guard .in() for empty array
+        let votesData: any[] = [];
+        const proposalIds = (proposalsData || []).map((p: any) => p.id);
+        if (proposalIds.length > 0) {
+          const { data: v } = await supabase
+            .from("votes")
+            .select("id, proposal_id, participant_id, created_at")
+            .in("proposal_id", proposalIds);
+          votesData = v || [];
+        }
+        setVotes(votesData);
 
         const { data: participantsData } = await supabase
           .from("participants")
@@ -78,26 +81,30 @@ export default function Results() {
           filter: `room_id=eq.${roomId}`,
         },
         async (payload) => {
-          // a tiebreaker was created -> participants may be navigated by checking membership
           const tiebreakerId = payload.new.id;
-          // check if current user is part of this room -> find participant id
-          const myParticipant = participants.find(
-            (p: any) => p.user_id === profile?.id,
-          );
-          if (!myParticipant) {
-            setTiebreakInProgress(true); // non-participants just see banner
+
+          // fetch my participant row server-side instead of relying on local `participants` state
+          const { data: myParticipantRow } = await supabase
+            .from("participants")
+            .select("id")
+            .eq("room_id", roomId)
+            .eq("user_id", profile?.id)
+            .maybeSingle();
+
+          if (!myParticipantRow) {
+            setTiebreakInProgress(true); // not a participant in this room
             return;
           }
 
           // check membership of myParticipant in this new tiebreaker
-          const { data: rows } = await supabase
+          const { data: membership } = await supabase
             .from("tiebreaker_participants")
             .select("participant_id")
             .eq("tiebreaker_id", tiebreakerId)
-            .eq("participant_id", myParticipant.id);
+            .eq("participant_id", myParticipantRow.id)
+            .maybeSingle();
 
-          if (rows && rows.length > 0) {
-            // this user is tied -> navigate to tiebreak screen
+          if (membership) {
             router.push({
               pathname: "/room/[id]/tiebreak",
               params: { id: roomId, tiebreakerId },
@@ -112,7 +119,7 @@ export default function Results() {
     return () => {
       channel.unsubscribe();
     };
-  }, [roomId, profile?.id, participants]);
+  }, [roomId, profile?.id]); // removed participants from deps
 
   const voteCounts = useMemo(() => {
     const map: Record<string, number> = {};
