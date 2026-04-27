@@ -16,12 +16,16 @@ export default function AvatarImageSection({
   return (
     <View className="w-full gap-1 mt-6">
       <Label>AVATAR IMAGE</Label>
-      <View className="items-start w-full gap-4 aspect-square">
+      <View className="items-start w-full gap-4">
         {avatarUrl ? (
           <Image
             key={avatarUrl}
             source={{ uri: avatarUrl }}
-            style={{ width: "50%", height: "50%", borderRadius: 8 }}
+            style={{
+              width: "50%",
+              borderRadius: 8,
+              aspectRatio: "1/1",
+            }}
             onLoadStart={() => console.log("🖼️ Image loading started...")}
             onLoad={() => console.log("✅ Image loaded successfully")}
             onError={(error) => console.error("❌ Image load error:", error)}
