@@ -103,8 +103,22 @@ export default function Results() {
   useEffect(() => {
     if (!roomId) return;
 
+    // Remove stale channels for this room (prevents "after subscribe()" error)
+    supabase.getChannels().forEach((ch: any) => {
+      if (
+        typeof ch?.topic === "string" &&
+        ch.topic.includes(`room-winner-${roomId}`)
+      ) {
+        supabase.removeChannel(ch);
+      }
+    });
+
+    const channelName = `room-winner-${roomId}-${Date.now()}-${Math.random()
+      .toString(36)
+      .slice(2)}`;
+
     const channel = supabase
-      .channel(`room-winner-${roomId}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
