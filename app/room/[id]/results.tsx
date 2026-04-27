@@ -91,6 +91,7 @@ export default function Results() {
 
     fetch();
 
+    // Subscribe to tiebreaker INSERT events
     const channel = supabase
       .channel(`tiebreakers:room:${roomId}`)
       .on(
@@ -103,6 +104,8 @@ export default function Results() {
         },
         async (payload) => {
           const tiebreakerId = payload.new.id;
+
+          // Fetch current user's participant in this room
           const { data: myParticipantRow } = await supabase
             .from("participants")
             .select("id")
@@ -115,6 +118,7 @@ export default function Results() {
             return;
           }
 
+          // Check membership
           const { data: membership } = await supabase
             .from("tiebreaker_participants")
             .select("participant_id")
@@ -123,6 +127,7 @@ export default function Results() {
             .maybeSingle();
 
           if (membership) {
+            // Use setTimeout to defer navigation until after render
             router.push({
               pathname: "/room/[id]/tiebreak",
               params: { id: roomId, tiebreakerId },

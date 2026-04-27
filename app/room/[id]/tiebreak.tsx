@@ -22,6 +22,7 @@ export default function TieBreak() {
     }
 
     let mounted = true;
+
     const fetchRow = async () => {
       try {
         const { data } = await supabase
@@ -39,6 +40,7 @@ export default function TieBreak() {
 
     fetchRow();
 
+    // Build channel with .on() BEFORE .subscribe()
     const channel = supabase
       .channel(`tiebreaker:${tiebreakerId}`)
       .on(
@@ -50,10 +52,11 @@ export default function TieBreak() {
           filter: `id=eq.${tiebreakerId}`,
         },
         (payload) => {
+          console.log("Tiebreaker updated:", payload.new);
           if (mounted) setTiebreaker(payload.new);
         },
       )
-      .subscribe();
+      .subscribe(); // Call subscribe AFTER all .on() handlers
 
     return () => {
       mounted = false;
@@ -115,8 +118,6 @@ export default function TieBreak() {
 
             <Pressable
               onPress={() => {
-                // submit attempt logic goes here (insert into tiebreaker_attempts)
-                // This file is a scaffold; implement insert + false-start handling next.
                 console.log("Tapped (implement attempt insert)");
               }}
               className="items-center justify-center w-64 bg-green-500 rounded-full h-14"

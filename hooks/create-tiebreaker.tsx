@@ -8,40 +8,43 @@ export async function createTiebreaker(
   roomId: string,
   tiedParticipants: { participant_id: string; proposal_id: string }[],
 ) {
-  console.log("createTiebreaker called with roomId:", roomId);
+  try {
+    console.log("🔵 createTiebreaker called");
 
-  // Sørg for du bruger authenticated supabase klient (ikke service role)
-  const { data: tdata, error: terr } = await supabase
-    .from("tiebreakers")
-    .insert({ room_id: roomId, status: "pending" })
-    .select()
-    .single();
+    const { data: tdata, error: terr } = await supabase
+      .from("tiebreakers")
+      .insert({ room_id: roomId, status: "pending" })
+      .select()
+      .single();
 
-  if (terr) {
-    console.error("Insert tiebreaker error:", terr);
-    throw terr;
+    if (terr) {
+      console.error("❌ tiebreaker INSERT error:", terr);
+      throw terr;
+    }
+
+    console.log("✅ Tiebreaker created:", tdata.id);
+    const tiebreakerId = tdata.id;
+
+    const rows = tiedParticipants.map((tp) => ({
+      tiebreaker_id: tiebreakerId,
+      participant_id: tp.participant_id,
+      proposal_id: tp.proposal_id,
+    }));
+
+    const { error: pErr } = await supabase
+      .from("tiebreaker_participants")
+      .insert(rows);
+
+    if (pErr) {
+      console.error("❌ tiebreaker_participants INSERT error:", pErr);
+      throw pErr;
+    }
+
+    return tdata;
+  } catch (e) {
+    console.error("❌ createTiebreaker failed:", e);
+    throw e;
   }
-
-  const tiebreakerId = tdata.id;
-  console.log("Tiebreaker inserted:", tiebreakerId);
-
-  // insert participants
-  const rows = tiedParticipants.map((tp) => ({
-    tiebreaker_id: tiebreakerId,
-    participant_id: tp.participant_id,
-    proposal_id: tp.proposal_id,
-  }));
-
-  const { error: pErr } = await supabase
-    .from("tiebreaker_participants")
-    .insert(rows);
-
-  if (pErr) {
-    console.error("Insert tiebreaker_participants error:", pErr);
-    throw pErr;
-  }
-
-  return tdata;
 }
 
 /**
