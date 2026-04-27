@@ -16,8 +16,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type Entrant = {
   participant_id: string;
   proposal_id: string;
-  label: string;
+  label: string; // this will now be proposal.content
 };
+
+const WHEEL_SIZE = 320; // bigger wheel
 
 export default function TieBreak() {
   const router = useRouter();
@@ -75,11 +77,23 @@ export default function TieBreak() {
         setTiebreaker(tb ?? null);
         setRoom(rm ?? null);
 
+        const proposalIds = (rows ?? []).map((r: any) => r.proposal_id);
+
+        const { data: proposals } = await supabase
+          .from("proposals")
+          .select("id, content")
+          .in("id", proposalIds);
+
+        const contentById = new Map(
+          (proposals ?? []).map((p: any) => [p.id, p.content]),
+        );
+
         const mapped: Entrant[] = (rows ?? []).map((r: any, i: number) => ({
           participant_id: r.participant_id,
           proposal_id: r.proposal_id,
-          label: `Spiller ${i + 1}`,
+          label: contentById.get(r.proposal_id) ?? `Forslag ${i + 1}`,
         }));
+
         setEntrants(mapped);
       } catch (e) {
         console.error("Failed to load tiebreaker screen:", e);
@@ -203,24 +217,81 @@ export default function TieBreak() {
         <Text className="text-2xl font-bold text-white">Tiebreaker</Text>
 
         <View className="items-center">
-          <Text className="mb-2 text-yellow-300">▼</Text>
+          <Text className="mb-3 text-3xl text-yellow-300">▼</Text>
+
           <Animated.View
-            style={{ transform: [{ rotate: rotationDeg }] }}
-            className="items-center justify-center w-64 h-64 border-4 border-purple-500 rounded-full"
+            style={{
+              width: WHEEL_SIZE,
+              height: WHEEL_SIZE,
+              transform: [{ rotate: rotationDeg }],
+            }}
+            className="relative items-center justify-center overflow-hidden rounded-full"
           >
-            <Text className="px-6 text-center text-white">
-              {entrants.length > 0
-                ? entrants.map((e, i) => `${i + 1}. ${e.label}`).join("\n")
-                : "Ingen deltagere"}
-            </Text>
+            {entrants.length === 2 ? (
+              <>
+                {/* Left half */}
+                <View className="absolute top-0 left-0 w-1/2 h-full bg-[#39C060]" />
+
+                {/* Right half */}
+                <View className="absolute top-0 right-0 w-1/2 h-full bg-[#FF3B3B]" />
+
+                {/* Center divider */}
+                <View
+                  style={{
+                    position: "absolute",
+                    left: WHEEL_SIZE / 2 - 1,
+                    top: 0,
+                    width: 0,
+                    height: WHEEL_SIZE,
+                    backgroundColor: "rgba(0,0,0,0.35)",
+                  }}
+                />
+
+                {/* Left label */}
+                <Text
+                  style={{
+                    position: "absolute",
+                    left: 10,
+                    width: WHEEL_SIZE / 2 - 20,
+                    top: WHEEL_SIZE / 2 - 10,
+                    textAlign: "center",
+                  }}
+                  className="font-semibold text-white"
+                  numberOfLines={2}
+                >
+                  {entrants[0]?.label}
+                </Text>
+
+                {/* Right label */}
+                <Text
+                  style={{
+                    position: "absolute",
+                    right: 10,
+                    width: WHEEL_SIZE / 2 - 20,
+                    top: WHEEL_SIZE / 2 - 10,
+                    textAlign: "center",
+                  }}
+                  className="font-semibold text-white"
+                  numberOfLines={2}
+                >
+                  {entrants[1]?.label}
+                </Text>
+              </>
+            ) : (
+              <Text className="px-6 text-center text-white">
+                {entrants.length > 0
+                  ? entrants.map((e) => e.label).join("\n")
+                  : "Ingen deltagere"}
+              </Text>
+            )}
           </Animated.View>
         </View>
 
         {tiebreaker.status !== "finished" && (
           <Text className="text-sm text-gray-300">
             {isHost
-              ? "Tryk spin for at trække en tilfældig vinder"
-              : "Venter på host..."}
+              ? "Click the button to spin the wheel and determine the winner!"
+              : "Waiting for the host..."}
           </Text>
         )}
 
@@ -231,18 +302,18 @@ export default function TieBreak() {
             className={`items-center justify-center h-12 px-6 rounded-full ${
               spinning || entrants.length < 2
                 ? "bg-gray-600 opacity-50"
-                : "bg-purple-600"
+                : "bg-primary"
             }`}
           >
             <Text className="font-bold text-white">
-              {spinning ? "Spinner..." : "Spin lykkehjulet"}
+              {spinning ? "Spinning..." : "Spin the Wheel"}
             </Text>
           </Pressable>
         )}
 
         {tiebreaker.status === "finished" && (
           <Text className="font-semibold text-green-400">
-            Vinder fundet! Sender tilbage til resultater…
+            Winner found! Redirecting to results...
           </Text>
         )}
       </View>

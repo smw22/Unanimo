@@ -5,8 +5,9 @@ import VoteBar from "@/components/VoteBar";
 import { createTiebreaker } from "@/hooks/create-tiebreaker";
 import { useAuthContext } from "@/hooks/use-auth-context";
 import { supabase } from "@/lib/supabase";
+import { useFocusEffect } from "@react-navigation/native";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -27,69 +28,101 @@ export default function Results() {
   const [loading, setLoading] = useState(true);
   const [tiebreakInProgress, setTiebreakInProgress] = useState(false);
 
+  const fetchResults = useCallback(async () => {
+    if (!roomId) return;
+
+    setLoading(true);
+    try {
+      const { data: roomData } = await supabase
+        .from("rooms")
+        .select("id, title, code, host_id, winner_proposal_id")
+        .eq("id", roomId)
+        .maybeSingle();
+      setRoom(roomData || null);
+
+      const { data: proposalsData } = await supabase
+        .from("proposals")
+        .select("id, room_id, participant_id, content, created_at")
+        .eq("room_id", roomId)
+        .order("created_at", { ascending: false });
+      setProposals(proposalsData || []);
+
+      let votesData: any[] = [];
+      const proposalIds = (proposalsData || []).map((p: any) => p.id);
+      if (proposalIds.length > 0) {
+        const { data: v } = await supabase
+          .from("votes")
+          .select("id, proposal_id, participant_id, vote_type, created_at")
+          .in("proposal_id", proposalIds)
+          .eq("vote_type", "yes");
+        votesData = v || [];
+      }
+      setVotes(votesData);
+
+      const { data: participantsData } = await supabase
+        .from("participants")
+        .select("id, room_id, user_id, joined_at")
+        .eq("room_id", roomId);
+
+      const participantsArr = participantsData || [];
+      const userIds = Array.from(
+        new Set(participantsArr.map((p: any) => p.user_id)),
+      );
+      let profilesData: any[] = [];
+      if (userIds.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, username, avatar_url, color")
+          .in("id", userIds);
+        profilesData = profs || [];
+      }
+
+      setParticipants(
+        participantsArr.map((p: any) => ({
+          ...p,
+          profile: profilesData.find((pf) => pf.id === p.user_id) ?? null,
+        })),
+      );
+    } catch (e) {
+      console.error("Results fetch error:", e);
+    } finally {
+      setLoading(false);
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults, profile?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchResults();
+    }, [fetchResults]),
+  );
+
   useEffect(() => {
     if (!roomId) return;
 
-    const fetch = async () => {
-      setLoading(true);
-      try {
-        const { data: roomData } = await supabase
-          .from("rooms")
-          .select("id, title, code, host_id, winner_proposal_id")
-          .eq("id", roomId)
-          .maybeSingle();
-        setRoom(roomData || null);
+    const channel = supabase
+      .channel(`room-winner-${roomId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "rooms",
+          filter: `id=eq.${roomId}`,
+        },
+        (payload: any) => {
+          setRoom((prev: any) => ({ ...(prev || {}), ...(payload.new || {}) }));
+        },
+      )
+      .subscribe();
 
-        const { data: proposalsData } = await supabase
-          .from("proposals")
-          .select("id, room_id, participant_id, content, created_at")
-          .eq("room_id", roomId)
-          .order("created_at", { ascending: false });
-        setProposals(proposalsData || []);
-
-        let votesData: any[] = [];
-        const proposalIds = (proposalsData || []).map((p: any) => p.id);
-        if (proposalIds.length > 0) {
-          const { data: v } = await supabase
-            .from("votes")
-            .select("id, proposal_id, participant_id, vote_type, created_at")
-            .in("proposal_id", proposalIds)
-            .eq("vote_type", "yes"); // Only fetch yes votes
-          votesData = v || [];
-        }
-        setVotes(votesData);
-
-        const { data: participantsData } = await supabase
-          .from("participants")
-          .select("id, room_id, user_id, joined_at")
-          .eq("room_id", roomId);
-        // Fetch profiles for participants and merge
-        const participantsArr = participantsData || [];
-        const userIds = Array.from(
-          new Set(participantsArr.map((p: any) => p.user_id)),
-        );
-        let profilesData: any[] = [];
-        if (userIds.length > 0) {
-          const { data: profs } = await supabase
-            .from("profiles")
-            .select("id, username, avatar_url, color")
-            .in("id", userIds);
-          profilesData = profs || [];
-        }
-        const enrichedParticipants = participantsArr.map((p: any) => ({
-          ...p,
-          profile: profilesData.find((pf) => pf.id === p.user_id) ?? null,
-        }));
-        setParticipants(enrichedParticipants);
-      } catch (e) {
-        console.error("Results fetch error:", e);
-      } finally {
-        setLoading(false);
-      }
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    fetch();
-  }, [roomId, profile?.id]);
+  }, [roomId]);
 
   const voteCounts = useMemo(() => {
     const map: Record<string, number> = {};
