@@ -45,7 +45,9 @@ export default function QuantityPicker({
         <Text className="text-2xl text-primary">−</Text>
       </Pressable>
 
-      <Text className="mx-4 text-lg font-medium text-[#FFFFFF]">{value}</Text>
+      <Text className="mx-4 text-lg font-medium text-dark-text dark:text-text-primary">
+        {value}
+      </Text>
 
       <Pressable
         onPress={increase}
