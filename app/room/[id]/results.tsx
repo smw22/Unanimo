@@ -301,14 +301,39 @@ export default function Results() {
   const tieExists = tiedProposals.length >= 2 && maxVotes >= 1;
 
   const handleStartTiebreaker = async () => {
-    if (!roomId || !isHost || !tieExists) return;
+    if (!roomId || !tieExists) return;
+
     try {
+      // ensure we have an authenticated user and they are the host
+      const { data: sessionData, error: sessionError } =
+        await supabase.auth.getUser();
+      if (sessionError) {
+        console.error("Failed to get user session:", sessionError);
+        return;
+      }
+      const userId = (sessionData as any)?.user?.id;
+      console.log("Current user id:", userId, "room host:", room?.host_id);
+
+      if (!userId) {
+        console.error("Not authenticated - cannot create tiebreaker");
+        return;
+      }
+      if (userId !== room?.host_id) {
+        console.error("Current user is not host - RLS will reject insert");
+        return;
+      }
+
+      // prepare tied participants -> ensure participant ids exist
       const tiedParticipants = tiedProposals.map((p) => {
         const part = participants.find((pt: any) => pt.id === p.participant_id);
         return { participant_id: part?.id, proposal_id: p.id };
       });
+
       const missing = tiedParticipants.some((t) => !t.participant_id);
-      if (missing) return;
+      if (missing) {
+        console.error("Missing participant ids for tied proposals");
+        return;
+      }
 
       const t = await createTiebreaker(
         roomId as string,
